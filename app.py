@@ -1,85 +1,44 @@
-import streamlit as st
-import pandas as pd # Added for session state initialization, if needed globally
-st.set_page_config(page_title="QuLab", layout="wide")
-st.sidebar.image("https://www.quantuniversity.com/assets/img/logo5.jpg")
+"""import streamlit as st
+st.set_page_config(page_title=\"QuLab\", layout=\"wide\")
+st.sidebar.image(\"https://www.quantuniversity.com/assets/img/logo5.jpg\")
 st.sidebar.divider()
-st.title("QuLab: AML SAR Drafting Assistant")
+st.title(\"QuLab\")
 st.divider()
-st.markdown('''
-In this lab, we explore an AI-driven approach to assist Anti-Money Laundering (AML) analysts in drafting Suspicious Activity Reports (SARs). This application is designed to streamline the SAR workflow by leveraging Large Language Models (LLMs) to generate first-draft narratives, summarize transaction timelines, and suggest typologies.
+st.markdown("""
+In this lab, we will be building a multi-page Streamlit application for drafting AML Suspicious Activity Reports (SARs). This application is designed to assist AML analysts by generating first-draft SAR narratives, summarizing transaction timelines, and suggesting typologies. It emphasizes human review, auditability, and compliance guardrails.
 
-**Learning Goals:**
+This application will guide you through the process of:
 
-*   Assist AML analysts by generating **first-draft SAR narratives**, summarizing transaction timelines, and suggesting typologies—**always** with human review, auditability, and compliance guardrails.
-*   See how a **direct LLM call** can automate first-draft SAR narratives while strictly following regulatory guidance, without relying on Retrieval-Augmented Generation (RAG).
-*   Learn to **extract key information** (the 5Ws: Who, What, When, Where, Why) from case data, which is crucial for steering the LLM in generating a focused and compliant narrative.
-*   Practice **human-in-the-loop** review and perform compliance checks on the generated narrative before its final export, ensuring accuracy and regulatory adherence.
+*   **Case Intake:** Uploading and reviewing case data.
+*   **Explore Data:** Interactively exploring transaction data using visualizations.
+*   **Draft SAR:** Generating an initial SAR draft using AI.
+*   **Review & Compare:** Reviewing and editing the AI-generated draft.
+*   **Compliance Checklist & Sign-off:** Ensuring the SAR meets compliance requirements.
+*   **Export & Audit:** Exporting the final SAR and audit trail.
 
----
+We will use Plotly for visualizations and Streamlit's session state to manage data across pages.
+"""")
+# Your code starts here
+page = st.sidebar.selectbox(label=\"Navigation\", options=[\"Case Intake\", \"Explore Data\", \"Draft SAR\", \"Review & Compare\", \"Compliance Checklist & Sign-off\", \"Export & Audit\"])
 
-### About / Controls
-
-This panel provides an overview of key regulatory and operational considerations for SAR drafting and AI assurance.
-
-*   **BSA/FinCEN SAR Requirements:** The Bank Secrecy Act (BSA) requires financial institutions to report suspicious transactions to the Financial Crimes Enforcement Network (FinCEN). SARs are critical tools in combating money laundering and terrorist financing.
-*   **FinCEN Narrative Guidance:** FinCEN provides specific guidance on writing SAR narratives, emphasizing clarity, conciseness, chronology, and factual accuracy. Narratives should answer the 5Ws (Who, What, When, Where, Why) without speculation.
-*   **OCC/SR 11-7 Model Risk Management:** The Office of the Comptroller of the Currency (OCC) and the Federal Reserve (SR 11-7) provide guidance on model risk management, which is highly relevant when deploying AI models in critical functions like SAR drafting. This includes model validation, governance, and ongoing monitoring.
-*   **MITRE AI Assurance Cues:** The MITRE ATLAS framework offers a knowledge base of adversary tactics and techniques for AI systems, helping to identify and mitigate risks associated with AI deployment, including fairness, transparency, and robustness.
-
-''')
-# Initialize session state for common variables
-if "case_data" not in st.session_state:
-    st.session_state.case_data = None
-if "kpis" not in st.session_state:
-    st.session_state.kpis = {}
-if "extracted_5ws" not in st.session_state:
-    st.session_state.extracted_5ws = {}
-if "ai_draft_narrative" not in st.session_state:
-    st.session_state.ai_draft_narrative = ""
-if "analyst_edited_narrative" not in st.session_state:
-    st.session_state.analyst_edited_narrative = ""
-if "narrative_versions" not in st.session_state:
-    st.session_state.narrative_versions = []
-if "compliance_checklist_results" not in st.session_state:
-    st.session_state.compliance_checklist_results = []
-if "sign_off_details" not in st.session_state:
-    st.session_state.sign_off_details = {}
-if "audit_trail" not in st.session_state:
-    st.session_state.audit_trail = []
-
-page = st.sidebar.selectbox(label="Navigation", options=["Case Intake", "Explore Data", "Draft SAR", "Review & Compare", "Compliance Checklist & Sign-off", "Export & Audit"])
-if page == "Case Intake":
-    from application_pages.page_case_intake import run_page
-    run_page()
-elif page == "Explore Data":
-    from application_pages.page_explore_data import run_page
-    run_page()
-elif page == "Draft SAR":
-    from application_pages.page_draft_sar import run_page
-    run_page()
-elif page == "Review & Compare":
-    from application_pages.page_review_compare import run_page
-    run_page()
-elif page == "Compliance Checklist & Sign-off":
-    from application_pages.page_compliance_checklist import run_page
-    run_page()
-elif page == "Export & Audit":
-    from application_pages.page_export_audit import run_page
-    run_page()
-
-
-# License
-st.caption('''
----
-## QuantUniversity License
-
-© QuantUniversity 2025  
-This notebook was created for **educational purposes only** and is **not intended for commercial use**.  
-
-- You **may not copy, share, or redistribute** this notebook **without explicit permission** from QuantUniversity.  
-- You **may not delete or modify this license cell** without authorization.  
-- This notebook was generated using **QuCreate**, an AI-powered assistant.  
-- Content generated by AI may contain **hallucinated or incorrect information**. Please **verify before using**.  
-
-All rights reserved. For permissions or commercial licensing, contact: [info@qusandbox.com](mailto:info@qusandbox.com)
-''')
+if page == \"Case Intake\":
+    from application_pages.case_intake import run_case_intake
+    run_case_intake()
+elif page == \"Explore Data\":
+    from application_pages.explore_data import run_explore_data
+    run_explore_data()
+elif page == \"Draft SAR\":
+    from application_pages.draft_sar import run_draft_sar
+    run_draft_sar()
+elif page == \"Review & Compare\":
+    from application_pages.review_compare import run_review_compare
+    run_review_compare()
+elif page == \"Compliance Checklist & Sign-off\":
+    from application_pages.compliance_checklist import run_compliance_checklist
+    run_compliance_checklist()
+elif page == \"Export & Audit\":
+    from application_pages.export_audit import run_export_audit
+    run_export_audit()
+# Your code ends
+"""))
+```
