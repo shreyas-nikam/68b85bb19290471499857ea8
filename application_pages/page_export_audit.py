@@ -87,69 +87,48 @@ The export bundle serves multiple critical purposes:
         return (datetime.now() - timedelta(minutes=minutes)).strftime("%Y-%m-%d %H:%M:%S")
 
     # Prepare / rebuild buttons
-    col_a, col_b = st.columns([0.5, 0.5])
-    with col_a:
-        if st.button("📦 Prepare Export Bundle", type="primary", use_container_width=True):
-            # Build audit trail entries (examples)
-            audit_trail = [
-                {"timestamp": ts_minus(10), "event": "AI draft generated", "model": "OPENAI", "temperature": 0.2},
-                {"timestamp": ts_minus(5),  "event": "Analyst review started", "analyst_id": "AML_Analyst_001"},
-                {"timestamp": ts_minus(2),  "event": "Narrative edited and changes highlighted", "analyst_id": "AML_Analyst_001"},
-                {
-                    "timestamp": ts_minus(1),
-                    "event": "Compliance checklist run",
-                    "status": "PASS" if compliance_checklist_results.get("overall") else "FAIL",
-                },
-                {"timestamp": ts_minus(0),  "event": "Final export prepared", "analyst_id": "AML_Analyst_001"},
-            ]
+    if st.button("📦 Prepare Export Bundle", type="primary", use_container_width=True):
+        # Build audit trail entries (examples)
+        audit_trail = [
+            {"timestamp": ts_minus(10), "event": "AI draft generated", "model": "OPENAI", "temperature": 0.2},
+            {"timestamp": ts_minus(5),  "event": "Analyst review started", "analyst_id": "AML_Analyst_001"},
+            {"timestamp": ts_minus(2),  "event": "Narrative edited and changes highlighted", "analyst_id": "AML_Analyst_001"},
+            {
+                "timestamp": ts_minus(1),
+                "event": "Compliance checklist run",
+                "status": "PASS" if compliance_checklist_results.get("overall") else "FAIL",
+            },
+            {"timestamp": ts_minus(0),  "event": "Final export prepared", "analyst_id": "AML_Analyst_001"},
+        ]
+        st.session_state.audit_trail = audit_trail
+        # Build bundle + bytes once and persist in session
+        bundle = export_sar_data(human_edited_narrative, selected_facts, compliance_checklist_results, audit_trail)
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-            # Build bundle + bytes once and persist in session
-            bundle = export_sar_data(human_edited_narrative, selected_facts, compliance_checklist_results, audit_trail)
-            stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        json_bytes = json.dumps(bundle, indent=2, default=str).encode("utf-8")
+        csv_bytes = pd.DataFrame(audit_trail).to_csv(index=False).encode("utf-8")
+        txt_bytes = human_edited_narrative.encode("utf-8")
 
-            json_bytes = json.dumps(bundle, indent=2, default=str).encode("utf-8")
-            csv_bytes = pd.DataFrame(audit_trail).to_csv(index=False).encode("utf-8")
-            txt_bytes = human_edited_narrative.encode("utf-8")
+        st.session_state.export_files = {
+            "stamp": stamp,
+            "json_bytes": json_bytes,
+            "csv_bytes": csv_bytes,
+            "txt_bytes": txt_bytes,
+        }
+        if 'export_ready' not in st.session_state:
+            st.session_state.export_ready = True
+        st.success("Export bundle prepared. Use the download buttons below.")
 
-            st.session_state.export_files = {
-                "stamp": stamp,
-                "json_bytes": json_bytes,
-                "csv_bytes": csv_bytes,
-                "txt_bytes": txt_bytes,
-            }
-            if 'export_ready' not in st.session_state:
-                st.session_state.export_ready = True
-            st.success("Export bundle prepared. Use the download buttons below.")
-
-    with col_b:
-        if st.button("🧹 Clear Prepared Bundle", use_container_width=True):
-            st.session_state.export_files = {}
-            if 'export_ready' in st.session_state:
-                st.session_state.export_ready = False
-            st.info("Export bundle cleared.")
+ 
 
     st.divider()
 
     # --- Always render download buttons if we have prepared bytes in session ---
-    if 'export_ready' in st.session_state and st.session_state.export_ready and 'export_files' in st.session_state and st.session_state.export_files:
+    if 'export_ready' in st.session_state:
         stamp = st.session_state.export_files["stamp"]
-
-        st.download_button(
-            label="⬇️ Download Full SAR Export (JSON)",
-            data=st.session_state.export_files["json_bytes"],
-            file_name=f"SAR_export_{stamp}.json",
-            mime="application/json",
-            use_container_width=True,
-            key=f"dl_json_{stamp}",
-        )
-        st.download_button(
-            label="⬇️ Download Audit Trail (CSV)",
-            data=st.session_state.export_files["csv_bytes"],
-            file_name=f"SAR_audit_trail_{stamp}.csv",
-            mime="text/csv",
-            use_container_width=True,
-            key=f"dl_csv_{stamp}",
-        )
+        
+        st.markdown("### Final Narrative")
+        st.markdown(human_edited_narrative)
         st.download_button(
             label="⬇️ Download Final Narrative (TXT)",
             data=st.session_state.export_files["txt_bytes"],
@@ -158,5 +137,28 @@ The export bundle serves multiple critical purposes:
             use_container_width=True,
             key=f"dl_txt_{stamp}",
         )
+
+        st.markdown("### Full SAR Export")
+        
+        st.download_button(
+            label="⬇️ Download Full SAR Export (JSON)",
+            data=st.session_state.export_files["json_bytes"],
+            file_name=f"SAR_export_{stamp}.json",
+            mime="application/json",
+            use_container_width=True,
+            key=f"dl_json_{stamp}",
+        )
+        
+        st.markdown("### Audit Trail")
+        st.dataframe(pd.DataFrame(st.session_state.audit_trail))
+        st.download_button(
+            label="⬇️ Download Audit Trail (CSV)",
+            data=st.session_state.export_files["csv_bytes"],
+            file_name=f"SAR_audit_trail_{stamp}.csv",
+            mime="text/csv",
+            use_container_width=True,
+            key=f"dl_csv_{stamp}",
+        )
+        
     else:
         st.info("Click **Prepare Export Bundle** to generate the downloadable files.")

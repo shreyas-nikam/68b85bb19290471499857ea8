@@ -3,10 +3,12 @@ import pandas as pd
 
 
 import os, requests
+from dotenv import load_dotenv
+load_dotenv()
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 LLM_API_URL = os.getenv("LLM_API_URL", "https://api.openai.com/v1/chat/completions")      # Placeholder URL
-LLM_API_KEY = os.getenv("LLM_API_KEY", "")      # Placeholder Key
+LLM_API_KEY = os.getenv("LLM_API_KEY", os.environ.get("OPENAI_API_KEY"))      # Placeholder Key
 
 def build_prompt(case_data, extracted_5ws):
     # Compose a chronological, fact-focused, speculative-free prompt.
@@ -32,16 +34,17 @@ Facts:
 {facts_formatted}
 
 Produce a detailed narrative appropriate for an SAR filing for the above case.
+Make sure the amounts are included in backticks. For example, `$40`, `$232` and `$323`.
 It should include details about the customer, their transactions, and the alert received. It should clearly state who, what, when, where, and why, based on the provided facts, and must avoid speculation.
 """
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=8))
 def call_llm(prompt: str) -> str:
-    if not st.session_state.llm_api_key or st.session_state.llm_api_key == "":
+    if not LLM_API_KEY or LLM_API_KEY == "":
         print("Warning: LLM_API_URL or LLM_API_KEY not set. Using a dummy response.")
         return "AI-assisted draft:\nThis is a dummy AI-assisted narrative because LLM API credentials were not configured. Please set LLM_API_URL and LLM_API_KEY environment variables for real LLM interaction. The narrative should include details about Customer 7, their transactions, and the alert received. It should clearly state who, what, when, where, and why, based on the provided facts, and must avoid speculation. The customer engaged in multiple transactions between 2023-01-01 and 2023-01-03, with an alert triggered on 2023-01-05 due to suspicious activity. Details about the transaction amounts and the origin/destination latitudes and longitudes were provided."
 
-    headers = {"Authorization": f"Bearer {st.session_state.llm_api_key}", "Content-Type": "application/json"}
+    headers = {"Authorization": f"Bearer {LLM_API_KEY}", "Content-Type": "application/json"}
     payload = {
         "model": "gpt-4o",   # configure per your provider, e.g., "gpt-4o-mini", "gemini-pro"
         "messages": [{"role": "user", "content": prompt}],
@@ -166,7 +169,6 @@ While a more sophisticated implementation might use NLP to infer these from unst
 
     st.markdown('''
 ### How 5Ws Guide the Draft
-
 The explicitly extracted 5Ws serve as a critical guide for the Language Model (LLM) when generating the SAR narrative. By providing these structured facts upfront, we ensure that the LLM focuses on the most salient points of the investigation and adheres to regulatory requirements.
 
 *   **Structured Input:** The LLM receives clear, categorized information, reducing the likelihood of omissions or misinterpretations.
@@ -182,8 +184,6 @@ This step significantly enhances the quality and reliability of the AI-assisted 
 
 To ensure reliable and compliant output:
 
-*   **Low Temperature:** The LLM call uses a low `temperature` setting (e.g., 0.2). This makes the model's responses more deterministic and less creative, ensuring it sticks to the facts.
-*   **Consistent Prompts:** While LLMs are probabilistic, low temperature and consistent prompts aim for more predictable outputs.
 *   **Explicit "AI-assisted" Label:** Every generated narrative includes this disclaimer to emphasize human accountability.
 *   **Security/Privacy:** Only strictly necessary, structured facts are sent to the LLM.
 
@@ -194,38 +194,20 @@ This structured approach minimizes risks associated with LLM usage in sensitive 
     st.markdown("## AI Narrative Generation")
     
     st.markdown("""
-Now, let's generate the AI narrative. Please enter your OpenAI API Key below. This key will be used to call the OpenAI API to generate the AI narrative. <br />
-You can get your OpenAI API Key from your OpenAI account. [Refer docs here](https://platform.openai.com/docs/api-reference/introduction).
-               """,
-               unsafe_allow_html=True)
-    llm_api_key = st.text_input("OpenAI API Key")
-    if not llm_api_key:
-        st.error("Please enter your OpenAI API Key")
-        return
+Now, let's generate the AI narrative for the selected facts and 5Ws.
+""", unsafe_allow_html=True)
+    prompt = build_prompt(selected_facts, five_ws)
     
-    else:
-        st.session_state.llm_api_key = llm_api_key
-        prompt = build_prompt(selected_facts, five_ws)
-        st.markdown("This is the prompt that will be sent to the LLM:")
-        st.write(f"""
-```             
-{prompt}
-```
-""")
-        if st.button("Generate AI Narrative"):
+    if st.button("Generate AI Narrative"):
+        with st.spinner("Generating AI narrative..."):
             ai_draft_narrative = call_llm(prompt)
-            if "AI-assisted" not in ai_draft_narrative:
-                ai_draft_narrative = "AI-assisted draft:\n" + ai_draft_narrative
-            st.markdown("\n### AI-assisted Draft Narrative:")
-            st.markdown(f"""
-```
-{ai_draft_narrative}
-```
-                """,
-                unsafe_allow_html=True
-            )
-            
-            st.markdown("""### Reiteration for Human Review
+        if "AI-assisted" not in ai_draft_narrative:
+            ai_draft_narrative = "AI-assisted draft:\n" + ai_draft_narrative
+        st.session_state.ai_draft_narrative = ai_draft_narrative
+        st.markdown("\n### AI-assisted Draft Narrative:")
+        st.markdown(ai_draft_narrative)
+        st.divider()
+        st.markdown("""### Reiteration for Human Review
 
 The output above presents the AI-assisted draft of the SAR narrative. This draft is generated by the LLM based on the carefully curated `selected_facts` and `extracted_5ws`, adhering to the strict prompting instructions for compliance and factual reporting.
 
@@ -243,8 +225,8 @@ This human-in-the-loop approach combines the efficiency of AI with the critical 
 
 Now move on to the `Human Review` page to edit the narrative.
 """,
-                unsafe_allow_html=True
-            )
-            
-            
-            
+            unsafe_allow_html=True
+        )
+        
+        
+        

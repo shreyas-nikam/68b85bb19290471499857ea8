@@ -252,14 +252,14 @@ This automated checklist speeds up the review process and provides objective fee
     
     
     # show the narrative and let the user edit it
-    st.markdown("### AI Draft Narrative")
-    edited_narrative = st.text_area("Edit the narrative", value=human_edited_narrative, height=400)
+    st.markdown("### SAR Narrative")
+    edited_narrative = st.text_area("Edit the narrative to make it compliant with the checklist", value=human_edited_narrative, height=400)
     
     
     if st.button("Run Compliance Checklist"):
         compliance_report = render_compliance_checklist_ui(edited_narrative, five_ws)
         st.session_state.compliance_checklist_results = compliance_report
-        
+        st.markdown("")
         st.markdown("The compliance checklist report provides a clear pass/fail status for each critical criterion. This immediate feedback helps analysts understand where the narrative stands in terms of regulatory readiness.")
         st.markdown("""
 Now head to the `Export & Audit` page to export the SAR.                

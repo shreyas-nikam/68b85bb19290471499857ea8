@@ -203,7 +203,7 @@ Now you can edit the following narrative as an expert analyst would. For example
     if "human_edited_narrative" not in st.session_state:
         st.session_state.human_edited_narrative = ai_draft_narrative
     
-    edited_narrative = st.text_area("Human Edited Narrative", value=st.session_state.human_edited_narrative, height=300)
+    edited_narrative = st.text_area("Edit the generated narrative", value=st.session_state.human_edited_narrative, height=300)
     
     if st.button("Save Human Edited Narrative"):
         st.session_state.human_edited_narrative = edited_narrative
@@ -220,6 +220,7 @@ Now you can edit the following narrative as an expert analyst would. For example
     st.markdown("### Highlighted Changes (AI Draft vs. Analyst Edited - deletions in red, insertions in green)")
     st.markdown(highlighted_diff, unsafe_allow_html=True)
 
+    st.divider()
     st.markdown("""               
 #### Audit Implications
 

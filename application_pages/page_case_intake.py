@@ -201,7 +201,6 @@ In this section, we define and execute a function to generate synthetic data. Th
 *   **Customers:** `customer_id`, `name`, `country`, `risk_score`
 *   **Transactions:** `transaction_id`, `customer_id`, `amount`, `timestamp`
 *   **Alerts:** `alert_id`, `customer_id`, `reason`, `timestamp`
-*   **Notes:** `note_id`, `customer_id`, `note`, `timestamp`
 
 This structured data will serve as the foundation for extracting key facts and insights that feed into our AI-assisted narrative generation process.
 ''')
@@ -304,9 +303,6 @@ These metrics are vital for an AML analyst to quickly size up a case, identify p
         st.dataframe(alerts.head())
         st.write("Alerts dataset information:", alerts.shape)
         
-        st.write("Notes data:")
-        st.dataframe(notes.head())
-        st.write("Notes dataset information:", notes.shape)
 
         st.write("Now head over to the `Explore Data` page to explore the data.")
         
