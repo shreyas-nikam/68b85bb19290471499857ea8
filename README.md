@@ -1,51 +1,29 @@
-# QuLab: Drafting AML Suspicious Activity Reports with AI
+# QuLab: AML SAR Drafting Assistant
 
 ## Project Title and Description
 
-QuLab is a Streamlit application designed to assist Anti-Money Laundering (AML) analysts in drafting Suspicious Activity Reports (SARs). This tool leverages AI to generate first-draft SAR narratives, summarize transaction timelines, and suggest potential typologies, emphasizing human review, auditability, and compliance guardrails. The application provides a multi-page workflow that guides users through case intake, data exploration, SAR drafting, review, compliance checks, and final export, streamlining the initial SAR generation process.
+QuLab is a Streamlit application designed to assist Anti-Money Laundering (AML) analysts in drafting Suspicious Activity Reports (SARs). This application streamlines the SAR workflow by leveraging Large Language Models (LLMs) to generate first-draft narratives, summarize transaction timelines, and suggest typologies.  It is designed to be a tool that assists in drafting, but **requires human review, auditability, and compliance guardrails**.
+
+This project is part of a lab setting and is intended for educational and demonstrational purposes, showcasing the application of AI in AML compliance.
 
 ## Features
 
-*   **Case Intake:**
-    *   Upload case data (e.g., CSV, JSON) or generate synthetic data for demonstration.
-    *   Display summary KPIs, including total transactions, inflow, outflow, number of customers and branches involved, and the time window of the transactions.
-    *   Suggest potential typologies based on the loaded data.
-*   **Explore Data:**
-    *   Interactive visualizations for exploring transaction data:
-        *   Timeline of activity.
-        *   Geographic map of transaction locations.
-        *   Counterparty network graph.
-        *   Heatmaps of transaction intensity by day of the week and hour of day, as well as alert density over time.
-    *   Data filtering using date range, amount range, transaction channel, and branch.
-    *   A "Draft Facts Tray" to collect important pieces of information for the narrative.
-*   **Draft SAR:**
-    *   AI-assisted generation of a first-draft SAR narrative using an LLM (Large Language Model) and the extracted 5Ws.
-    *   Displays the AI-generated narrative in a read-only text area.
-*   **Review & Compare:**
-    *   Rich text editor for reviewing and editing the AI-generated SAR narrative.
-    *   Version control and audit logging for tracking changes.
-    *   Diff viewer for comparing the AI draft with the analyst-edited version, highlighting changes.
-    *   (Conceptual) Explainability Panel that would link sentences in the narrative to the data that supports them.
-*   **Compliance Checklist & Sign-off:**
-    *   Compliance checklist to ensure the SAR meets regulatory requirements, including presence of 5Ws, chronology, clarity, avoidance of speculation, and adherence to length bounds.
-    *   Sign-off section for formal approval by a Compliance Officer.
-*   **Export & Audit:**
-    *   Export the final SAR narrative, supporting facts, compliance checklist report, and audit trail in JSON format.
-    *   Download the audit trail in CSV or JSON format.
-    *   Content immutability verification using SHA256 hashing.
+*   **Case Intake:** Upload case data (e.g., transaction data, customer information) in CSV or Excel format or load synthetic data for demonstration.
+*   **Data Exploration:** Visualize transaction data using interactive charts and graphs to identify patterns and anomalies. (Currently placeholder)
+*   **AI-Powered SAR Draft Generation:** Leverage LLMs to generate first-draft SAR narratives based on extracted case data and regulatory guidance.
+*   **Human-in-the-Loop Review:**  Review and edit the AI-generated narrative within the application to ensure accuracy and compliance.
+*   **Compliance Checklist:**  Evaluate the SAR draft against a compliance checklist to adhere to regulatory requirements.
+*   **Version Control:** Track different versions of the SAR narrative throughout the drafting and review process. (Currently placeholder)
+*   **Export and Audit:** Export the final SAR draft and maintain an audit trail of changes made during the process. (Currently placeholder)
 
 ## Getting Started
 
 ### Prerequisites
 
-*   Python 3.7 or higher
+*   Python 3.7+
 *   Streamlit
 *   Pandas
-*   Plotly
-*   NetworkX
-*   spaCy (and the `en_core_web_sm` model)
-*   streamlit_richtext (for the richtext editor)
-*   hashlib (for content verification)
+*   Plotly (for data visualization - Currently placeholder)
 
 ### Installation
 
@@ -53,13 +31,13 @@ QuLab is a Streamlit application designed to assist Anti-Money Laundering (AML) 
 
     ```bash
     git clone <repository_url>
-    cd <repository_directory>
+    cd <repository_name>
     ```
 
 2.  **Create a virtual environment (recommended):**
 
     ```bash
-    python -m venv venv
+    python3 -m venv venv
     source venv/bin/activate  # On Linux/macOS
     venv\Scripts\activate  # On Windows
     ```
@@ -67,9 +45,10 @@ QuLab is a Streamlit application designed to assist Anti-Money Laundering (AML) 
 3.  **Install dependencies:**
 
     ```bash
-    pip install streamlit pandas plotly networkx spacy streamlit_richtext
-    python -m spacy download en_core_web_sm
+    pip install streamlit pandas plotly  # plotly is optional, for future data visualization implementations.
     ```
+
+    If you plan on integrating an LLM for SAR generation, you'll need to install the corresponding library (e.g., `openai`, `transformers` depending on your LLM of choice).  **Note:** The current code contains placeholders for LLM functionality.
 
 ## Usage
 
@@ -79,80 +58,63 @@ QuLab is a Streamlit application designed to assist Anti-Money Laundering (AML) 
     streamlit run app.py
     ```
 
-2.  **Open the application in your browser:**
+2.  **Access the application in your browser:**
 
-    The application should open automatically in your default web browser. If not, navigate to the address displayed in the terminal (usually `http://localhost:8501`).
+    Open your browser and navigate to the URL displayed in the terminal (usually `http://localhost:8501`).
 
-3.  **Basic Usage:**
+3.  **Basic Usage Instructions:**
 
-    *   **Case Intake:**
-        *   Upload your case data or generate synthetic data using the button provided.
-        *   Review the summary KPIs displayed.
-    *   **Explore Data:**
-        *   Use the interactive visualizations to analyze your transaction data.
-        *   Apply filters to narrow down your focus.
-        *   Add relevant facts to the "Draft Facts Tray."
-    *   **Draft SAR:**
-        *   Click the "Generate Draft Narrative" button to generate an AI-assisted SAR draft.
-    *   **Review & Compare:**
-        *   Review and edit the generated draft in the rich text editor.
-        *   Save your changes and compare them with the original draft.
-    *   **Compliance Checklist & Sign-off:**
-        *   Run the compliance checks and ensure all items meet the requirements.
-        *   Have the Compliance Officer sign off the SAR.
-    *   **Export & Audit:**
-        *   Export the completed SAR package, including the narrative, facts, checklist, and audit trail.
+    *   **Case Intake:** Upload your case data using the file uploader or load synthetic data.  Review the displayed summary KPIs.
+    *   **Explore Data:** (Placeholder) Use the interactive charts to visualize transaction patterns and identify anomalies.
+    *   **Draft SAR:** Generate an initial SAR draft using the AI-powered narrative generator.  Review and edit the generated narrative.
+    *   **Review & Compare:** (Placeholder) Compare different versions of the SAR narrative.
+    *   **Compliance Checklist & Sign-off:**  Complete the compliance checklist to ensure regulatory adherence and sign off on the final draft.
+    *   **Export & Audit:** (Placeholder) Export the final SAR draft and view the audit trail.
 
 ## Project Structure
 
 ```
 QuLab/
-├── app.py                          # Main Streamlit application file
-├── application_pages/            # Directory containing individual page logic
-│   ├── case_intake.py            # Logic for the Case Intake page (deprecated)
-│   ├── explore_data.py           # Logic for the Explore Data page (deprecated)
-│   ├── draft_sar.py              # Logic for the Draft SAR page (deprecated)
-│   ├── review_compare.py         # Logic for the Review & Compare page (deprecated)
-│   ├── compliance_checklist.py  # Logic for the Compliance Checklist & Sign-off page (deprecated)
-│   ├── export_audit.py            # Logic for the Export & Audit page (deprecated)
-│   ├── utils.py                   # Utility functions (data loading, visualization, etc.)
-│   ├── page_case_intake.py            # Logic for the Case Intake page
-│   ├── page_explore_data.py           # Logic for the Explore Data page
-│   ├── page_draft_sar.py              # Logic for the Draft SAR page
-│   ├── page_review_compare.py         # Logic for the Review & Compare page
-│   ├── page_compliance_signoff.py  # Logic for the Compliance Checklist & Sign-off page
-│   ├── page_export_audit.py            # Logic for the Export & Audit page
-├── README.md                       # This README file
-└── venv/                           # Virtual environment (optional)
+├── app.py                    # Main Streamlit application file
+├── application_pages/          # Directory containing individual page modules
+│   ├── page_case_intake.py     # Case intake page
+│   ├── page_explore_data.py   # Data exploration page (Placeholder)
+│   ├── page_draft_sar.py      # SAR drafting page
+│   ├── page_review_compare.py # Review and comparison page (Placeholder)
+│   ├── page_compliance_checklist.py # Compliance checklist and sign-off page (Placeholder)
+│   └── page_export_audit.py   # Export and audit page (Placeholder)
+├── README.md                 # This README file
+└── venv/                     # (Optional) Virtual environment directory
 ```
 
 ## Technology Stack
 
-*   **Streamlit:** For creating the interactive web application.
-*   **Pandas:** For data manipulation and analysis.
-*   **Plotly:** For creating visualizations.
-*   **NetworkX:** For creating network graphs.
-*   **spaCy:** For natural language processing (not actively used currently, but kept for potential future expansion).
-*   **streamlit_richtext:** For an enhanced text editing experience in the Review & Compare page.
-*   **hashlib:** for content verification of final SAR.
+*   **Streamlit:**  For building the interactive web application.
+*   **Pandas:**  For data manipulation and analysis.
+*   **Plotly:** For data visualization. (Currently placeholder)
+*   **Large Language Model (LLM):**  (Integration required) Used for generating SAR narratives. The current implementation uses placeholders for the LLM integration.  Example libraries include:
+    *   `openai`:  For using OpenAI models.
+    *   `transformers`: For using Hugging Face transformers.
 
 ## Contributing
 
-Contributions are welcome! Please follow these guidelines:
+Contributions are welcome!  Please follow these guidelines:
 
 1.  Fork the repository.
 2.  Create a new branch for your feature or bug fix.
-3.  Make your changes and commit them with descriptive messages.
-4.  Test your changes thoroughly.
-5.  Submit a pull request.
+3.  Write clear and concise code with appropriate comments.
+4.  Submit a pull request with a detailed description of your changes.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE). (If applicable. Add the LICENSE file to the repository).  If no license is explicitly stated, all rights are reserved.
 
 ## Contact
 
-For questions or feedback, please contact:
+*   [Your Name/Organization]
+*   [Your Email]
+*   [Link to your website/portfolio]
 
-*   [QuantUniversity](https://www.quantuniversity.com/)
-*   [Your Name/Email]
+---
+
+**Disclaimer:** This application is intended for educational and demonstrational purposes only and should not be used for actual SAR filing without thorough human review and validation by qualified AML professionals.  The AI-generated narratives are provided as a starting point and require careful scrutiny to ensure accuracy, completeness, and compliance with all applicable regulations.  The use of this application is at your own risk.
