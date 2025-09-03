@@ -1,127 +1,135 @@
-# Streamlit Data Analysis & Visualization App
+# QuLab: AML SAR Drafting Assistant
 
 ## Project Title and Description
 
-This Streamlit application provides a user-friendly interface for exploring and visualizing data.  It allows users to upload CSV files, perform basic data analysis operations (such as calculating summary statistics and identifying missing values), and create interactive visualizations to gain insights from their data. This project serves as a lab exercise showcasing the power and simplicity of Streamlit for building data-driven web applications.
+**QuLab: AML SAR Drafting Assistant** is a Streamlit application designed to streamline the drafting of Anti-Money Laundering (AML) Suspicious Activity Reports (SARs). This tool aims to enhance the efficiency and accuracy of AML analysts by providing AI-assisted features throughout the SAR generation process. The application guides analysts through a structured workflow, including case intake, data exploration, SAR draft generation (powered by a Large Language Model), review and comparison, compliance checks, and export/audit functionalities.
 
 ## Features
 
-*   **CSV File Upload:**  Users can upload their data in CSV format directly through the Streamlit interface.
-*   **Data Preview:**  Displays a sample of the uploaded data in a tabular format for quick inspection.
-*   **Summary Statistics:**  Calculates and displays key descriptive statistics for numerical columns (mean, median, standard deviation, minimum, maximum, etc.).
-*   **Missing Value Analysis:**  Identifies and reports the number of missing values in each column.
-*   **Interactive Visualizations:**
-    *   Scatter plots for visualizing relationships between two numerical variables.
-    *   Histograms for understanding the distribution of single numerical variables.
-    *   Bar charts for visualizing categorical data.
-*   **Downloadable Results:** Allows users to download the processed data and generated visualizations.
-*   **Column Selection:** Dynamically selects which columns to use for specific visualizations.
-*   **Customizable Plot Parameters:**  Allows users to adjust plot titles, axis labels, and other parameters.
+*   **Case Intake:** Upload and get a preliminary overview of case data. Displays key statistics and potential AML typologies.
+*   **Explore Data:** Interactively analyze transactions, customer relationships, and geographic patterns using advanced visualizations (timeline, geo map, counterparty network graph).
+*   **Draft SAR:** Generate an initial SAR narrative using an LLM, steered by extracted key facts.
+*   **Review & Compare:** Review, edit, and compare the AI-generated draft with the analyst's final version.
+*   **Compliance Checklist & Sign-off:** Validate the narrative against a compliance checklist and facilitate formal sign-off.
+*   **Export & Audit:** Export the final SAR package, including the narrative, facts, checklist report, and a detailed audit trail.
+*   **Synthetic Data Generation:** The application includes a synthetic data generation capability for demonstration and testing purposes.
+*   **Direct LLM Integration:** Uses direct LLM calls for SAR narrative generation, focusing on regulatory compliance (e.g., FinCEN guidelines) without relying on Retrieval-Augmented Generation (RAG).
+*   **Human-in-the-Loop Review:** Emphasizes the essential role of human expertise in reviewing and validating AI-generated narratives.
+*   **Auditability and Compliance Guardrails:** Provides features that ensure every step of the SAR drafting process is auditable, transparent, and aligned with compliance requirements.
 
 ## Getting Started
 
 ### Prerequisites
 
-Before running the application, ensure you have the following installed:
-
-*   **Python:**  Version 3.7 or higher is recommended.
-*   **pip:**  Python package installer (usually comes with Python).
+*   **Python 3.8+:**  Ensure you have Python 3.8 or a later version installed.
+*   **Poetry:** Installation and management of virtual environments.
 
 ### Installation
 
 1.  **Clone the repository:**
 
     ```bash
-    git clone <repository_url>  # Replace <repository_url> with the actual URL
-    cd streamlit_data_app
+    git clone <repository_url>
+    cd QuLab-SAR-Assistant  # Or whatever the repo is named locally.
     ```
 
-2.  **Create a virtual environment (recommended):**
+2.  **Install Poetry:**
 
     ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Linux/macOS
-    venv\Scripts\activate  # On Windows
+    pip install poetry
     ```
 
-3.  **Install the required packages:**
+3.  **Create and activate a virtual environment using Poetry:**
 
     ```bash
-    pip install -r requirements.txt
+    poetry install
+    poetry shell
     ```
 
-    If a `requirements.txt` file is not present, install the necessary packages individually (see Technology Stack below):
+4.  **Install Dependencies:**
 
     ```bash
-    pip install streamlit pandas matplotlib seaborn plotly
+    pip install -r requirements.txt  # This is important if poetry install fails, it should not, but it's here as a fallback.
     ```
+
+5.  **Environment Variables (Optional - Local Development):**
+
+    *   Create a `.env` file in the root directory of the project.
+    *   Add any required environment variables to the `.env` file.  (e.g., API Keys if needed to connect to LLMs.)
+
+    ```
+    # .env example (if an API key is needed)
+    OPENAI_API_KEY=YOUR_OPENAI_API_KEY
+    ```
+
+    **Important:** For production deployments, it's highly recommended to manage secrets securely using a dedicated secrets manager service (e.g., Kubernetes secrets, AWS Secrets Manager) instead of a `.env` file.
 
 ## Usage
 
-1.  **Run the application:**
+1.  **Run the Streamlit application:**
 
     ```bash
-    streamlit run app.py  # Assuming your Streamlit application file is named app.py
+    streamlit run app.py
     ```
 
 2.  **Access the application:**
 
     Open your web browser and navigate to the URL displayed in the terminal (usually `http://localhost:8501`).
 
-3.  **Using the application:**
+3.  **Navigate the Application:**
 
-    *   **Upload Data:**  Click the "Browse files" button to upload a CSV file.
-    *   **Explore Data:**  View the data preview, summary statistics, and missing value analysis.
-    *   **Create Visualizations:**  Select the desired plot type and column(s) from the dropdown menus. Customize plot parameters as needed.
-    *   **Download Results:**  Use the download buttons to save the processed data and visualizations.
+    Use the sidebar navigation to access different pages:
+
+    *   **Case Intake:** Load and view case data.
+    *   **Explore Data:** Interact with data visualizations.
+    *   **Draft SAR:** Generate an initial SAR draft.
+    *   **Review & Compare:** Review and edit the SAR draft.
+    *   **Compliance Checklist & Sign-off:** Perform compliance checks and sign-off.
+    *   **Export & Audit:** Export the SAR package.
 
 ## Project Structure
 
 ```
-streamlit_data_app/
-├── app.py             # Main Streamlit application file
-├── README.md          # This file
-├── requirements.txt  # List of Python dependencies (optional)
-├── data/              # (Optional) Directory for storing sample data
-├── images/            # (Optional) Directory for storing images (e.g., logo)
+QuLab-SAR-Assistant/
+├── app.py                    # Main Streamlit application script
+├── application_pages/        # Directory containing individual page scripts
+│   ├── page1_case_intake.py
+│   ├── page2_explore_data.py
+│   ├── page3_draft_sar.py
+│   ├── page4_review_compare.py
+│   ├── page5_compliance_signoff.py
+│   └── page6_export_audit.py
+├── .env                     # (Optional) Environment variables (for local development only)
+├── README.md                 # This file
+├── requirements.txt          # List of Python dependencies
+└── poetry.lock             # Poetry lock file
+└── pyproject.toml          # Poetry configuration
 ```
-
-*   `app.py`: Contains the Streamlit application code, defining the user interface, data processing logic, and visualization generation.
-*   `README.md`:  Provides information about the project, its features, and how to use it.
-*   `requirements.txt`:  Lists the Python packages required to run the application. This file simplifies the installation process by allowing you to install all dependencies at once.
-*   `data/`: An optional directory where you can store sample CSV files for testing the application.
-*   `images/`: An optional directory where you can store images used in the application (e.g., a project logo).
 
 ## Technology Stack
 
-*   **Python:**  The programming language used to build the application.
-*   **Streamlit:**  A Python library for creating interactive web applications with minimal code.  (Version >= 1.0 recommended)
-*   **Pandas:**  A powerful data analysis and manipulation library.
-*   **Matplotlib:**  A plotting library for creating static, interactive, and animated visualizations in Python.
-*   **Seaborn:**  A high-level data visualization library based on Matplotlib, providing a more aesthetically pleasing and informative set of default styles.
-*   **Plotly:** A library for creating interactive and dynamic visualizations.
+*   **Streamlit:**  For building the interactive web application.
+*   **Pandas:**  For data manipulation and analysis.
+*   **Numpy:**  For numerical operations.
+*   **Plotly:**  For creating interactive visualizations.
+*   **NetworkX:** For creating and manipulating network graphs.
+*   **python-dotenv:** For loading environment variables from a `.env` file (optional, for local development).
 
 ## Contributing
 
-Contributions are welcome!  Please follow these guidelines:
+Contributions are welcome! Please follow these guidelines:
 
-1.  **Fork the repository:**  Create your own fork of the project on GitHub.
-2.  **Create a branch:**  Create a new branch for your feature or bug fix.
-3.  **Make changes:**  Implement your changes, ensuring your code is well-documented and follows the project's coding style.
-4.  **Test your changes:**  Thoroughly test your code to ensure it works as expected.
-5.  **Submit a pull request:**  Submit a pull request to the main repository with a clear description of your changes.
-
-We will review your pull request and provide feedback.  Thank you for contributing!
+1.  Fork the repository.
+2.  Create a new branch for your feature or bug fix.
+3.  Make your changes and commit them with clear, descriptive messages.
+4.  Submit a pull request to the main branch.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE) - see the `LICENSE` file for details. (If a separate LICENSE file exists. If not, specify the terms here)
-If no specific license is used:
-This project is released under an open-source license allowing for free use, modification, and distribution for any purpose, subject to the inclusion of the original copyright notice and disclaimer.
+This project is licensed under the [MIT License](LICENSE).
 
 ## Contact
 
-For questions or issues, please contact:
+For questions or feedback, please contact:
 
-*   [Your Name](your_email@example.com)
-*   [Link to your GitHub profile] (optional)
+*   [QuantUniversity](https://www.quantuniversity.com/)
