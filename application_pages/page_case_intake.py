@@ -308,6 +308,7 @@ These metrics are vital for an AML analyst to quickly size up a case, identify p
         st.dataframe(notes.head())
         st.write("Notes dataset information:", notes.shape)
 
+        st.write("Now head over to the `Explore Data` page to explore the data.")
         
         
 
