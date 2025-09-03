@@ -1,0 +1,10 @@
+
+streamlit
+pandas
+plotly
+networkx
+scikit-learn
+numpy
+spacy
+streamlit-richtext
+diff-match-patch
