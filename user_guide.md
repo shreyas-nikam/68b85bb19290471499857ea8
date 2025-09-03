@@ -3,108 +3,118 @@ summary: Drafting AML Suspicious Activity Reports User Guide
 feedback link: https://docs.google.com/forms/d/e/1FAIpQLSfWkOK-in_bMMoHSZfcIvAeO58PAH9wrDqcxnJABHaxiDqhSA/viewform?usp=sf_link
 environments: Web
 status: Published
-# QuLab: AML SAR Drafting Assistant Codelab
+# QuLab User Guide: Drafting AML Suspicious Activity Reports (SARs) with AI Assistance
 
-This codelab guides you through using QuLab, an AI-driven application designed to assist Anti-Money Laundering (AML) analysts in drafting Suspicious Activity Reports (SARs). SARs are crucial documents financial institutions use to report suspicious activities to regulatory bodies like FinCEN. This application streamlines the SAR workflow by leveraging Large Language Models (LLMs) to generate first-draft narratives, summarize transaction timelines, and suggest typologies.  It's important to remember that the AI's output is a *draft* and requires thorough human review, auditability, and adherence to compliance guardrails.
+This codelab will guide you through the QuLab application, designed to assist AML analysts in drafting Suspicious Activity Reports (SARs) using AI. The application streamlines the process, emphasizes human review, ensures auditability, and provides compliance guardrails. You will learn how to leverage AI to generate first-draft SAR narratives, summarize transaction timelines, and suggest typologies, all while adhering to regulatory requirements.
 
-The focus is on understanding how to use the application to effectively draft SARs, *not* on the underlying code. We'll explore how the application can help you extract key information, generate initial narratives, and ensure compliance. This codelab emphasizes the "human-in-the-loop" approach, where AI assists but humans retain control and responsibility.
+## Introduction: The Power of AI in AML
 
-## Case Intake
 Duration: 00:05
 
-The **Case Intake** page is where you begin your SAR drafting process. Here, you'll upload the data related to the suspicious activity you're investigating.  This could be in the form of a CSV or Excel file containing transaction details, customer information, alerts, and notes. If you don't have a file readily available, you can also load synthetic data for demonstration purposes.
+This application demonstrates how Large Language Models (LLMs) can augment the crucial work of Anti-Money Laundering (AML) analysts.  It focuses on automating the initial phases of Suspicious Activity Report (SAR) generation, traditionally intensive in manual data synthesis and narrative drafting. By using AI to assist with the drafting process, AML analysts can focus on critical thinking, analysis, and ensuring compliance.
 
-<aside class="positive">
-The application requires a structured dataset (like CSV or Excel) containing relevant transaction data. The more complete and accurate the data, the better the application can assist in drafting the SAR.
-</aside>
+This lab will guide you through using AI to generate a preliminary SAR narrative, adhering to regulatory guidance. You will also extract key information (the 5Ws), and understand the importance of the human-in-the-loop review, as well as ensure auditability and compliance.
 
-1.  **Upload Case Bundle:** Use the file uploader to select a CSV or Excel file containing the case data.  The application will attempt to parse the data and display a preview.
+## Step 1: Case Intake
 
-2.  **Load Synthetic Data:** If you don't have a case file, click the "Load Synthetic Data" button. This will load a pre-populated dataset, allowing you to explore the application's features.
-
-3.  **Review Data:**  The application will display a preview of the loaded data.  Take a moment to review the data to ensure it has been loaded correctly.
-
-4.  **Summary KPIs:** The application calculates and displays key performance indicators (KPIs) based on the loaded transaction data, such as the total number of transactions, total transaction volume, and average transaction amount. This provides a quick overview of the case.
-
-5.  **Possible Typologies:** Although implemented as a placeholder in this example, in a real-world scenario, the application would suggest possible typologies of suspicious activity based on the loaded data.
-
-<aside class="negative">
-Ensure that the uploaded data is properly formatted. Incorrectly formatted data may lead to errors during the KPI calculation and typology suggestion phases.
-</aside>
-
-## Explore Data
-Duration: 00:03
-
-The **Explore Data** page is intended to provide visualizations and tools for further analyzing the case data.
-Currently this part of the application only has placeholder code. In a real world application, you would create timeline visualizations of transactions using libraries like Plotly to identify patterns and trends. These visualizations would help you understand the sequence of events and identify potential anomalies.
-
-## Draft SAR
 Duration: 00:10
 
-The **Draft SAR** page is where the AI assistant comes into play. This page uses the loaded case data to generate a first-draft SAR narrative. The application extracts key information (the 5Ws: Who, What, When, Where, Why) and uses it to build a prompt for the LLM.
+The "Case Intake" page is the starting point. Here, you will load the data related to a specific case you're investigating. This data typically includes customer information, transaction details, alerts generated by monitoring systems, and any notes taken by analysts.
 
-1.  **Automatic 5Ws Extraction (Placeholder):**  Currently, the application uses a placeholder for extracting the 5Ws.  In a real-world application, this step would involve analyzing the case data to automatically identify the key information needed for the SAR narrative (e.g., the subject of the suspicious activity, the nature of the suspicious activity, the timing of the activity, the location of the activity, and the reason for suspicion).
-
-2.  **AI Narrative Generation:** The application uses the extracted 5Ws (or placeholder values) to build a prompt and calls the LLM to generate a draft narrative.
-
-3.  **Review AI-Generated Narrative:** The generated narrative is displayed in a text area. **Critically review the narrative for accuracy, clarity, and completeness.** Remember, this is a *draft* and will likely require editing and refinement.
-
-4.  **Human-in-the-Loop Editing:**  Edit the AI-generated narrative to correct any errors, add additional details, and ensure it meets all regulatory requirements and internal policies.
-
-<aside class="positive">
-Pay close attention to the AI-generated narrative. Look for inconsistencies, missing information, or areas where the AI's interpretation of the data may be inaccurate.
-</aside>
-
-<aside class="negative">
-Never blindly trust the AI-generated narrative. Always perform thorough human review and validation to ensure accuracy and compliance.
-</aside>
-
-## Review & Compare
-Duration: 00:05
-
-The **Review & Compare** page (currently a placeholder) is designed to help you compare different versions of the SAR narrative. This can be useful for tracking changes made during the editing process and for comparing the original AI-generated narrative with the final, analyst-edited version.
-
-In a real-world implementation, this page would:
-
-1.  **Store Narrative Versions:** Automatically save different versions of the narrative as they are edited.
-2.  **Side-by-Side Comparison:** Allow you to compare two versions of the narrative side-by-side, highlighting the differences between them.
-3.  **Track Changes:**  Provide a visual representation of the changes made to the narrative over time.
-
-## Compliance Checklist & Sign-off
-Duration: 00:05
-
-The **Compliance Checklist & Sign-off** page is a critical step in the SAR drafting process.  This page provides a checklist of items to review to ensure that the SAR meets all regulatory requirements and internal policies.
-
-1.  **Compliance Checklist:** The application displays a checklist of items to review. This might include items such as:
-    *   Ensuring all required fields are completed.
-    *   Verifying the accuracy of all information.
-    *   Confirming that the narrative is clear, concise, and factual.
-    *   Documenting any discrepancies or red flags.
-
-2.  **Analyst Sign-off:**  After completing the checklist, the analyst signs off on the SAR, certifying that it meets all compliance requirements.
-
-3.  **Supervisor Review (Optional):** In some cases, a supervisor may be required to review and approve the SAR before it is submitted.
-
-<aside class="negative">
-The compliance checklist is essential for ensuring that the SAR is accurate, complete, and compliant with all applicable regulations.  Do not skip this step!
-</aside>
-
-## Export & Audit
-Duration: 00:02
-
-The **Export & Audit** page allows you to export the final SAR and generate an audit trail of the drafting process.
-
-1.  **Export SAR:** The application allows you to export the SAR in a standard format (e.g., PDF, XML).
-
-2.  **Generate Audit Trail:** The application generates an audit trail of the SAR drafting process, including:
-    *   The date and time the SAR was created.
-    *   The user who created the SAR.
-    *   All changes made to the SAR narrative.
-    *   The date and time the SAR was signed off.
-    *   The user who signed off on the SAR.
-
-3.  **Store Audit Trail:** The audit trail is stored securely for future reference.
+1.  **Loading Data:** You have two options for loading data into the application:
+    *   **Upload Case Bundle:**  You can upload a file (e.g., CSV, JSON) containing the case data.
+    *   **Generate Synthetic Case Data:**  For demonstration purposes, you can generate synthetic data.  This option creates a sample dataset that you can use to explore the application's functionalities.
+2.  **Quick Stats Display:**  Once the data is loaded, the application displays a summary of key performance indicators (KPIs), such as:
+    *   Total number of transactions
+    *   Total inflow and outflow amounts
+    *   Average transaction amount
+    *   Number of customers and branches involved
+    *   The time window covered by the data.
+3.  **Possible Typologies:** Based on the loaded data, the application suggests potential AML typologies that might be relevant to the case. These typologies are based on predefined rules and patterns. For example, "Large Value Transactions" might be suggested if there are transactions exceeding a certain threshold.
+4.  **Extract 5Ws:** Click the "Extract 5Ws from Loaded Data" button to automatically extract the Who, What, When, Where, and Why from your data.
 
 <aside class="positive">
-The audit trail provides a valuable record of the SAR drafting process, which can be useful for demonstrating compliance and responding to regulatory inquiries.
+Loading the case data is the foundation for the rest of the SAR drafting process. Take your time to explore the generated stats and possible typologies to get a good understanding of the case.
+</aside>
+
+## Step 2: Explore Data
+
+Duration: 00:15
+
+The "Explore Data" page provides interactive visualizations to help you analyze the transaction data in detail. This page allows you to identify suspicious patterns and trends that may not be immediately obvious from the raw data.
+
+1.  **Data Filters:**  Use the various filters to narrow down the data and focus on specific areas of interest. You can filter by:
+    *   **Date Range:**  Select a specific time period to analyze.
+    *   **Amount Range:**  Focus on transactions within a particular amount range.
+    *   **Channel:**  Filter transactions by the channel used (e.g., online, branch, ATM).
+    *   **Branch:**  Focus on transactions originating from specific branches.
+    *   **Counterparty:**  Analyze transactions involving specific counterparties.
+2.  **Visualizations:**  The application provides several visualizations to help you explore the data:
+    *   **Timeline of Activity:**  This visualization shows the transaction volume over time, allowing you to identify periods of increased or unusual activity.
+    *   **Geo Map:** This map displays transaction activity by branch location, highlighting potential high-risk areas.
+    *   **Counterparty Network Graph:** This graph visualizes the relationships between customers and counterparties, helping to identify potential hubs of activity and complex transaction patterns.
+    *   **Heatmaps:** The heatmaps show transaction intensity by day of week and hour of day, and alert density over time.
+3.  **Typology Cues Panel:**  Based on the filtered data, the application suggests potential AML typologies that might be relevant to the case.
+4.  **Draft Facts Tray:** A section for adding key facts observed during data exploration. This allows you to start building a list of supporting evidence for your SAR narrative.
+
+<aside class="negative">
+The filters applied on this page only filter the views and data available on this page, and does not affect the data on any other page. Make sure to consider the filters when analysing the data.
+</aside>
+
+## Step 3: Draft SAR
+
+Duration: 00:08
+
+The "Draft SAR" page leverages AI to generate a first draft of the Suspicious Activity Report (SAR) narrative. The AI model uses the loaded case data and the extracted 5Ws (Who, What, When, Where, and Why) to create a preliminary narrative.
+
+1.  **Generate Draft Narrative:** Click the "Generate Draft Narrative" button to initiate the AI-powered draft generation.
+2.  **AI-Generated SAR Narrative:** The generated narrative will be displayed in a text area.  This is a first draft and requires careful human review, editing, and validation.
+
+<aside class="positive">
+The 5Ws are crucial for the LLM to generate an effective narrative. Ensure they are extracted correctly in the Case Intake Page before generating a SAR.
+</aside>
+
+## Step 4: Review & Compare
+
+Duration: 00:15
+
+The "Review & Compare" page is where you, as the AML analyst, refine the AI-generated SAR narrative. You can edit the draft, ensure accuracy, add missing details, and compare your edits with the original AI draft to track changes.
+
+1.  **Analyst Review and Edits:** Use the rich text editor to modify the AI-generated narrative.  Correct any errors, add relevant information, and ensure the narrative is clear, concise, and accurate.
+2.  **Version Control and Audit Logging:**
+    *   Click the "Save Analyst Edits" button to save your changes.
+    *   The application tracks each edit and creates an audit trail, recording the timestamp, editor, content hash, and a snapshot of the narrative.
+3.  **Diff Viewer:** The "Diff Viewer" displays the differences between the original AI draft and your edited version, highlighting additions, deletions, and modifications.
+4. **Explainability Panel:** Although conceptual, this panel would ideally show connections between narrative sentences and supporting data.
+
+## Step 5: Compliance Checklist & Sign-off
+
+Duration: 00:10
+
+The "Compliance Checklist & Sign-off" page helps ensure the drafted SAR narrative meets all regulatory compliance requirements.
+
+1.  **Compliance Checklist Status:**
+    *   Click the "Run Compliance Checks" button to validate the narrative against key compliance items.
+    *   The checklist verifies the presence of the 5Ws, chronological order, clarity, conciseness, and avoidance of speculation.
+2.  **Compliance Officer Sign-off:**
+    *   Enter the Compliance Officer's name and click the "Sign-off SAR" button to formally approve the SAR.
+    *   The application checks if all critical compliance items have passed before allowing the sign-off.
+
+## Step 6: Export & Audit
+
+Duration: 00:07
+
+The "Export & Audit" page allows you to export the completed SAR narrative, supporting facts, the compliance checklist report, and a detailed audit trail.
+
+1.  **Export Final SAR Package:**
+    *   Click the "Download Final SAR Package (JSON)" button to download all the SAR data in a structured JSON format.
+2.  **Audit Trail:**
+    *   The audit trail provides a complete history of all actions and changes throughout the SAR drafting process.
+    *   You can download the audit trail in CSV or JSON format.
+3.  **Content Immutability Verification:**
+    *   The final content hash provides an immutable record of the SAR narrative at the time of sign-off.
+    *   This hash can be used to verify that the exported narrative matches the approved version.
+
+<aside class="positive">
+Saving all the SAR data for future reference is extremely important and valuable. Take special care to ensure that the download is not interrupted and the SAR data is safely stored.
 </aside>
