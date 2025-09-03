@@ -3,74 +3,141 @@ summary: Drafting AML Suspicious Activity Reports User Guide
 feedback link: https://docs.google.com/forms/d/e/1FAIpQLSfWkOK-in_bMMoHSZfcIvAeO58PAH9wrDqcxnJABHaxiDqhSA/viewform?usp=sf_link
 environments: Web
 status: Published
-# Interactive Stock Price Prediction with Monte Carlo Simulation
+# QuLab: AML SAR Drafting Assistant - Codelab User Guide
 
-This codelab guides you through an interactive Streamlit application that uses Monte Carlo simulation to predict future stock prices. Understanding stock price movements is crucial for investors, and this application offers a hands-on way to explore the concepts of Monte Carlo simulation and its application in finance. We'll walk through the application's features, showing you how to adjust parameters and interpret the results. This application provides a visual and interactive way to understand how different factors can impact potential stock price outcomes.
+This codelab provides a comprehensive guide to using the QuLab AML SAR Drafting Assistant, a Streamlit application designed to streamline the creation of Suspicious Activity Reports (SARs). This tool enhances the efficiency and accuracy of AML analysts by providing intelligent assistance throughout the SAR generation process. The application's primary goal is to help analysts automate first-draft SAR narratives while maintaining human oversight and ensuring compliance.
 
-## Introduction to the Application
+## Understanding the Application's Importance
+
 Duration: 00:05
 
-This Streamlit application leverages the power of Monte Carlo simulation to forecast potential stock prices. Monte Carlo simulation is a computational technique that uses random sampling to obtain numerical results. By simulating numerous possible price paths based on historical data, the application provides a range of potential future outcomes. This helps users visualize the uncertainty associated with stock price predictions and make more informed decisions.
+SARs are critical for financial institutions to report suspicious activities to regulatory bodies. Drafting these reports is often time-consuming and requires meticulous attention to detail. The QuLab AML SAR Drafting Assistant aims to reduce the manual effort involved, improve the quality of SAR narratives, and ensure adherence to regulatory guidelines. By using this application, analysts can focus on critical thinking and decision-making, leaving the initial drafting and data processing to the AI-powered assistant. The application provides a structured approach that ensures AI assists in drafting, while human oversight and compliance remain central to the process.
 
-<aside class="positive">
-<b>Key Concept:</b> Monte Carlo simulations are powerful tools for understanding risk and uncertainty in financial markets.  By running thousands of simulations, you can see a distribution of possible outcomes, rather than just a single predicted value.
-</aside>
+## Navigating the Application
 
-## Selecting Stock and Time Horizon
-Duration: 00:03
-
-The first step is to choose the stock you want to analyze and define the prediction timeframe. The application provides a dropdown menu to select from a list of stocks. You can then specify the number of days into the future you want the simulation to predict.
-
-<aside class="negative">
-<b>Important Note:</b> The accuracy of Monte Carlo simulations depends on the quality and length of historical data.  Be aware that past performance is not necessarily indicative of future results.
-</aside>
-
-## Adjusting Simulation Parameters
-Duration: 00:05
-
-The application allows you to adjust the key parameters that drive the Monte Carlo simulation:
-
-*   **Number of Simulations:** This determines how many different price paths the application will generate.  A higher number of simulations generally leads to more robust results, but also increases computation time.
-*   **Volatility:** This parameter represents the degree of variation in the stock's price over time. It's a measure of the stock's risk. You can either use the historical volatility calculated from the stock's data or manually input a volatility value based on your own analysis or expectations.
-
-<aside class="positive">
-<b>Tip:</b> Experiment with different volatility values to see how they affect the range of possible outcomes. Higher volatility will lead to a wider range of potential prices.
-</aside>
-
-## Understanding the Results
-Duration: 00:10
-
-After setting the parameters and running the simulation, the application displays the results in an interactive chart. The chart shows a range of possible stock prices over the specified time horizon.
-
-*   **Simulated Price Paths:** Each line on the chart represents a single simulated price path.  This gives you a visual representation of the potential range of outcomes.
-*   **Mean Prediction:**  The application calculates and displays the average of all the simulated price paths.  This represents the expected or most likely price based on the simulation.
-*   **Confidence Intervals:** The application also calculates and displays confidence intervals. These intervals show the range within which the stock price is likely to fall with a certain level of probability (e.g., 95% confidence interval).
-
-<aside class="negative">
-<b>Caution:</b>  Remember that Monte Carlo simulations are just predictions based on historical data and assumptions.  They are not guarantees of future performance. Use the results as one factor in your overall investment decision-making process.
-</aside>
-
-## Interpreting Confidence Intervals
-Duration: 00:07
-
-Confidence intervals are crucial for understanding the uncertainty associated with the predictions. A 95% confidence interval, for example, means that in 95% of the simulations, the stock price at a given time falls within the displayed range.  A wider confidence interval indicates greater uncertainty.
-
-For example, if the 95% confidence interval for the stock price 30 days from now is between $50 and $60, this suggests that there is a 95% probability that the stock price will be between $50 and $60 in 30 days, based on the simulation.
-
-<aside class="positive">
-<b>Key Concept:</b>  Confidence intervals provide a measure of the reliability of the prediction. A narrower interval suggests a more precise prediction, while a wider interval indicates greater uncertainty.
-</aside>
-
-## Exploring Different Scenarios
-Duration: 00:05
-
-One of the key benefits of this application is its ability to explore different scenarios. By adjusting the volatility parameter, you can simulate how the stock price might behave under different market conditions. For example, you can increase the volatility to simulate a period of high market uncertainty or decrease it to simulate a more stable market. This allows you to stress-test your investment strategies and assess the potential risks and rewards.
-
-<aside class="negative">
-<b>Important Note:</b> When adjusting the volatility, consider factors such as upcoming earnings announcements, economic news, and industry trends that may impact the stock's price.
-</aside>
-
-## Conclusion
 Duration: 00:02
 
-This codelab has provided a comprehensive guide to using the interactive stock price prediction application. By understanding the principles of Monte Carlo simulation and how to interpret the results, you can gain valuable insights into the potential risks and rewards of investing in the stock market. Remember to use this application as a tool to supplement your own research and analysis, and always consider the limitations of predictive models.
+The application features a sidebar for navigation, allowing you to access different sections of the SAR drafting process. These sections include:
+
+*   **Case Intake**: Upload and get a preliminary overview of the case data.
+*   **Explore Data**: Interactively analyze transactions, customer relationships, and geographic patterns using advanced visualizations.
+*   **Draft SAR**: Generate an initial SAR narrative using an LLM, steered by extracted key facts.
+*   **Review & Compare**: Review, edit, and compare the AI-generated draft with the final version.
+*   **Compliance Checklist & Sign-off**: Validate the narrative against a compliance checklist and facilitate formal sign-off.
+*   **Export & Audit**: Export the final SAR package, including the narrative, facts, checklist report, and a detailed audit trail.
+
+Use the selectbox under the "Navigation" label in the sidebar to switch between pages.
+
+## Case Intake
+
+Duration: 00:10
+
+The **Case Intake** page is the starting point for the SAR drafting process. Here, you can either upload your own case data or use the pre-loaded synthetic data provided by the application. The application provides an initial overview of the case, highlighting key statistics and potential AML typologies.
+
+**Key Features:**
+
+*   **Data Loading:** The application loads synthetic data for demonstration purposes. This data includes customer information, transaction details, alerts, and analyst notes.
+
+*   **Data Overview:** The page displays the shapes of the loaded dataframes (Customers, Transactions, Alerts, Notes), giving you a quick understanding of the data volume.
+
+*   **Quick Stats:** Key performance indicators (KPIs) such as total transactions, total transaction volume, average transaction amount, time window of transactions, number of unique customers, and total alerts are displayed. These KPIs provide a snapshot of the case.
+
+*   **Possible Typologies:** The application analyzes alert data to suggest possible AML typologies. This helps analysts focus their investigation on relevant areas.
+
+*   **Raw Data Preview:** The page displays the first few rows of each dataframe, allowing you to preview the data and verify its integrity.
+
+**Important Considerations:**
+
+*   The synthetic data is for demonstration purposes only. When using the application for real-world cases, you will need to upload your own data.
+*   The possible typologies suggested by the application are based on simple heuristics. Analysts should use their own judgment and expertise to determine the actual typologies involved in the case.
+
+## Explore Data
+
+Duration: 00:15
+
+The **Explore Data** page provides interactive visualizations to help you analyze the case data in more detail. This page allows you to identify patterns, trends, and anomalies that may indicate suspicious activity.
+
+**Key Visualizations:**
+
+*   **Transaction Timeline:** This visualization displays transaction amounts over time, allowing you to identify periods of unusual activity.
+*   **Geographic Map:** This map visualizes the origins of transactions, highlighting geographic patterns that may be indicative of money laundering or other illicit activities. The size of the markers on the map corresponds to the transaction amount, making it easy to identify high-value transactions.
+*   **Counterparty Network Graph:** This graph visualizes the relationships between customers involved in transactions. This helps you identify networks of individuals who may be collaborating to commit financial crimes.
+
+**Using the Visualizations:**
+
+*   Interact with the visualizations by hovering over data points to see more details.
+*   Use the zoom and pan features to explore specific areas of the visualizations.
+*   Use the filters and selection tools to focus on specific subsets of the data.
+
+**Mathematical Considerations:**
+
+The transaction timeline plots the transaction amount against time. The geographic map uses latitude and longitude coordinates to plot the origin of transactions. The size of the markers is scaled proportionally to the transaction amount.
+
+## Draft SAR
+
+Duration: 00:15
+
+The **Draft SAR** page allows you to generate an initial SAR narrative using a Large Language Model (LLM). The application guides you through the process of extracting key information from the case data, which is then used to steer the LLM in generating a focused and compliant narrative.
+
+**Key Steps:**
+
+1.  **Key Information Extraction (The 5Ws):** Identify the **Who, What, When, Where, and Why** of the suspicious activity. This involves analyzing the case data and summarizing the key facts.
+2.  **LLM Narrative Generation:** Use the extracted key information to generate an initial SAR narrative using the LLM.
+3.  **Review and Edit:** Review the generated narrative and make any necessary edits to ensure accuracy, completeness, and compliance.
+
+**Important Considerations:**
+
+*   The quality of the generated narrative depends on the quality of the extracted key information. Take the time to carefully analyze the case data and identify the most important facts.
+*   The LLM-generated narrative should be considered a draft. It is essential to review and edit the narrative to ensure accuracy, compliance, and clarity.
+*   The application is designed to assist in drafting, but human oversight and compliance remain central to the process.
+
+## Review & Compare
+
+Duration: 00:10
+
+The **Review & Compare** page allows you to review the LLM-generated draft against your final version of the SAR narrative. This page provides tools to compare the two versions side-by-side, making it easy to identify changes and ensure that all key information has been included.
+
+**Key Features:**
+
+*   **Side-by-Side Comparison:** The page displays the LLM-generated draft and your final version of the SAR narrative side-by-side.
+*   **Highlighting Changes:** The application highlights the differences between the two versions, making it easy to identify changes.
+*   **Editing Tools:** You can edit your final version of the SAR narrative directly on the page.
+
+**Using the Review & Compare Page:**
+
+1.  Carefully review the LLM-generated draft and your final version of the SAR narrative.
+2.  Pay close attention to the highlighted changes, and ensure that all key information has been included in the final version.
+3.  Use the editing tools to make any necessary changes to your final version of the SAR narrative.
+
+## Compliance Checklist & Sign-off
+
+Duration: 00:10
+
+The **Compliance Checklist & Sign-off** page provides a compliance checklist to validate the narrative against regulatory requirements and facilitates formal sign-off. This ensures that the SAR meets all necessary standards before submission.
+
+**Key Features:**
+
+*   **Compliance Checklist:** A list of compliance requirements that must be met before the SAR can be submitted.
+*   **Sign-off Mechanism:** A formal sign-off process to ensure that the SAR has been reviewed and approved by the appropriate personnel.
+
+**Using the Compliance Checklist & Sign-off Page:**
+
+1.  Review the compliance checklist and verify that the SAR meets all requirements.
+2.  Address any compliance issues that are identified.
+3.  Complete the sign-off process to formally approve the SAR.
+
+## Export & Audit
+
+Duration: 00:05
+
+The **Export & Audit** page allows you to export the final SAR package, including the narrative, facts, checklist report, and a detailed audit trail. This ensures that every step of the SAR drafting process is auditable, transparent, and aligned with compliance requirements.
+
+**Key Features:**
+
+*   **Export SAR Package:** Export the final SAR package in a format suitable for submission to regulatory bodies.
+*   **Generate Audit Trail:** Generate a detailed audit trail of the SAR drafting process, including versioning, audit logging, and sign-off mechanisms.
+
+**Using the Export & Audit Page:**
+
+1.  Export the final SAR package.
+2.  Generate the audit trail and store it securely for future reference.
