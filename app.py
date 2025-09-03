@@ -1,155 +1,97 @@
 
 import streamlit as st
-import pandas as pd
-import numpy as np
-
-# Optional: Load environment variables from a .env file for local development
-# For production, secrets should be managed securely (e.g., Kubernetes secrets, AWS Secrets Manager)
-from dotenv import load_dotenv
-load_dotenv()
-
-st.set_page_config(page_title="QuLab - AML SAR Drafting", layout="wide")
+st.set_page_config(page_title="QuLab", layout="wide")
 st.sidebar.image("https://www.quantuniversity.com/assets/img/logo5.jpg")
 st.sidebar.divider()
-st.title("QuLab: AML SAR Drafting Assistant")
+st.title("QuLab")
 st.divider()
 st.markdown("""
-In this lab, we explore the creation of an AI-assisted Streamlit application designed to streamline the **Drafting of AML Suspicious Activity Reports (SARs)**. This tool is built to enhance the efficiency and accuracy of AML analysts by providing intelligent assistance throughout the SAR generation process.
+In this lab, we explore how Artificial Intelligence (AI) can assist Anti-Money Laundering (AML) analysts in drafting Suspicious Activity Reports (SARs). The primary goal is to **automate the generation of first-draft SAR narratives**, summarize transaction timelines, and suggest potential typologies. It is crucial to remember that **human review, auditability, and strict compliance guardrails are always paramount**.
 
 ### Learning Goals:
 
-*   **Automate First-Draft SAR Narratives**: Learn how to leverage a direct Large Language Model (LLM) call to generate initial SAR narratives, adhering strictly to regulatory guidance (e.g., FinCEN). This approach focuses on direct LLM interaction without relying on Retrieval-Augmented Generation (RAG) for narrative generation.
-*   **Extract Key Information (The 5Ws)**: Understand the critical process of extracting **Who, What, When, Where, and Why** from complex case data. These fundamental elements are crucial for guiding the LLM to produce focused, compliant, and contextually relevant narratives.
-*   **Human-in-the-Loop Review**: Practice implementing and performing human-in-the-loop review and compliance checks on the AI-generated narratives. This ensures accuracy, regulatory adherence, and maintains the essential role of human expertise in the final SAR submission.
-*   **Auditability and Compliance Guardrails**: Implement features that ensure every step of the SAR drafting process is auditable, transparent, and aligned with compliance requirements, including versioning, audit logging, and sign-off mechanisms.
+*   **Automate First-Draft SAR Narratives**: Learn to leverage direct Large Language Model (LLM) calls to generate initial SAR narratives that adhere to regulatory guidance, specifically without relying on Retrieval-Augmented Generation (RAG). This showcases how LLMs can streamline the initial drafting process while maintaining compliance standards.
 
-### Business Logic Overview:
+*   **Extract Key Information (5Ws)**: Understand the importance of extracting the "5Ws" (Who, What, When, Where, Why) from case data. This foundational step is vital for guiding the LLM to produce focused, accurate, and compliant narratives, ensuring all critical aspects of a suspicious activity are covered.
 
-The application guides the analyst through a structured workflow:
+*   **Human-in-the-Loop Review**: Practice the essential "human-in-the-loop" approach by reviewing and performing compliance checks on the AI-generated narrative. This step ensures accuracy, identifies any potential errors or omissions, and confirms adherence to all regulatory requirements before the final export.
 
-1.  **Case Intake**: Upload and get a preliminary overview of the case data.
-2.  **Explore Data**: Interactively analyze transactions, customer relationships, and geographic patterns using advanced visualizations.
-3.  **Draft SAR**: Generate an initial SAR narrative using an LLM, steered by extracted key facts.
-4.  **Review & Compare**: Allow analysts to review, edit, and compare the AI-generated draft with their final version.
-5.  **Compliance Checklist & Sign-off**: Validate the narrative against a compliance checklist and facilitate formal sign-off.
-6.  **Export & Audit**: Export the final SAR package, including the narrative, facts, checklist report, and a detailed audit trail.
+*   **Compliance & Audit**: Learn how to implement and utilize a compliance checklist and audit trail. This ensures that every step of the SAR drafting process is traceable, transparent, and meets regulatory scrutiny, providing a robust framework for accountability.
 
-This structured approach ensures that while AI assists in drafting, human oversight and compliance remain central to the process.
+### Formula Handling:
+
+If you have formulae that use backslashes, either:
+- Use `st.latex()` for standalone formulae, or
+- Use the `r` prefix for raw strings within `st.markdown()` to prevent backslash interpretation issues.
+
+For combinations of raw strings and f-strings, render them properly:
+```python
+st.markdown(r"$H_{\alpha}$ value:"
+            f"{H_alpha_value}")
+```
+
+### BSA/FinCEN SAR Requirements Overview
+
+The Bank Secrecy Act (BSA) requires financial institutions to assist U.S. government agencies in detecting and preventing money laundering. A key component of BSA compliance is the filing of Suspicious Activity Reports (SARs).
+
+FinCEN provides detailed guidance for SAR narratives, emphasizing that they should be:
+
+*   **Clear**: Easy to understand, free of jargon where possible.
+*   **Concise**: To the point, including only relevant information.
+*   **Chronological**: Events described in the order they occurred.
+*   **Complete**: Containing all necessary details for law enforcement.
+*   **Factual**: Based on evidence, avoiding speculation or conclusions.
+
+**Key elements to include in a SAR narrative often revolve around the "5 Ws":**
+
+*   **Who**: Individuals or entities involved (account holders, beneficiaries, counterparties).
+*   **What**: The type of suspicious activity or transactions (e.g., structuring, wire transfers, deposits).
+*   **When**: Dates and times of the suspicious activity.
+*   **Where**: Locations involved (branches, geographic areas, virtual addresses).
+*   **Why**: The reasons for suspicion (e.g., unusual activity, deviation from normal patterns, red flags).
+
+### OCC/SR 11-7 Model Risk Management
+
+For AI-powered tools like this SAR drafting assistant, it's important to consider OCC/SR 11-7 guidance on model risk management. This guidance emphasizes robust processes for model development, implementation, and use, including:
+
+*   **Model Validation**: Independent review of model design, implementation, and outputs.
+*   **Governance**: Clear roles and responsibilities, policies, and procedures.
+*   **Documentation**: Comprehensive documentation of model design, assumptions, and limitations.
+*   **Ongoing Monitoring**: Regular monitoring of model performance and data quality.
+
+This application aims to support, not replace, human judgment, and therefore incorporates features like human-in-the-loop review and audit trails to align with these principles.
+
+### MITRE AI Assurance Cues
+
+MITRE's AI Assurance program provides a framework for evaluating the trustworthiness of AI systems. For this application, key assurance cues include:
+
+*   **Transparency**: Clearly indicating when content is AI-generated and allowing for human modification.
+*   **Explainability**: Providing context for AI suggestions, linking narratives to underlying data.
+*   **Robustness**: Ensuring the AI performs reliably under varying inputs.
+*   **Fairness**: Mitigating biases in data and model outputs.
+*   **Security**: Protecting sensitive data used by the AI.
+
+By incorporating these considerations, we aim to build a responsible and trustworthy AI assistant for AML analysts.
 """)
-
-# Initialize session state for data if not already present
-if "data" not in st.session_state:
-    @st.cache_data(show_spinner=False)
-    def load_synthetic_data():
-        """Generates synthetic data for AML analysis."""
-        # Customer data
-        num_customers = 100
-        customer_ids = range(1, num_customers + 1)
-        customer_data = {
-            "customer_id": customer_ids,
-            "name": [f"Customer {i}" for i in customer_ids],
-            "country": np.random.choice(["USA", "Canada", "UK", "Germany", "France"], size=num_customers),
-            "risk_score": np.random.randint(0, 100, size=num_customers),
-        }
-        customers_df = pd.DataFrame(customer_data)
-
-        # Transaction data
-        num_transactions = 500
-        transaction_data = {
-            "transaction_id": range(1, num_transactions + 1),
-            "customer_id": np.random.choice(customer_ids, size=num_transactions),
-            "amount": np.random.uniform(10, 1000, size=num_transactions),
-            "timestamp": pd.date_range("2023-01-01", periods=num_transactions, freq="H"),
-            "origin_latitude": np.random.uniform(25, 50, size=num_transactions), # Dummy lat
-            "origin_longitude": np.random.uniform(-120, -70, size=num_transactions), # Dummy lon
-            "destination_latitude": np.random.uniform(25, 50, size=num_transactions), # Dummy lat
-            "destination_longitude": np.random.uniform(-120, -70, size=num_transactions), # Dummy lon
-            "Source": np.random.choice(customer_ids, size=num_transactions), # Dummy Source for network graph
-            "Target": np.random.choice(customer_ids, size=num_transactions)  # Dummy Target for network graph
-        }
-        transactions_df = pd.DataFrame(transaction_data)
-
-        # Alert data
-        num_alerts = 50
-        alert_data = {
-            "alert_id": range(1, num_alerts + 1),
-            "customer_id": np.random.choice(customer_ids, size=num_alerts),
-            "reason": np.random.choice(["High transaction volume", "Unusual transaction location", "Suspicious activity"], size=num_alerts),
-            "timestamp": pd.date_range("2023-01-05", periods=num_alerts, freq="D"),
-        }
-        alerts_df = pd.DataFrame(alert_data)
-
-        # Notes data
-        num_notes = 30
-        note_data = {
-            "note_id": range(1, num_notes + 1),
-            "customer_id": np.random.choice(customer_ids, size=num_notes),
-            "note": [f"Note for customer {i}" for i in range(1, num_notes + 1)],
-            "timestamp": pd.date_range("2023-01-10", periods=num_notes, freq="D"),
-        }
-        notes_df = pd.DataFrame(note_data)
-
-        return {
-            "customers": customers_df,
-            "transactions": transactions_df,
-            "alerts": alerts_df,
-            "notes": notes_df,
-        }
-    
-    np.random.seed(42)
-    st.session_state["data"] = load_synthetic_data()
-    st.session_state["data"]["transactions"] = st.session_state["data"]["transactions"].rename(columns={'amount': 'transaction_amount'})
-    
-
-
-# About / Controls Panel
-st.sidebar.header("About / Controls")
-st.sidebar.markdown("""
-- **BSA/FinCEN SAR Requirements**: [Link to FinCEN Guidance](https://www.fincen.gov/resources/statutes-regulations/guidance)
-- **FinCEN Narrative Guidance**: Best practices for SAR narratives.
-- **OCC/SR 11-7 Model Risk**: Principles for sound model risk management.
-- **MITRE AI Assurance Cues**: Guidelines for AI system trustworthiness.
-""")
-
-
-# Navigation
-page = st.sidebar.selectbox(
-    label="Navigation", 
-    options=["Case Intake", "Explore Data", "Draft SAR", "Review & Compare", "Compliance Checklist & Sign-off", "Export & Audit"]
-)
+# Your code starts here
+page = st.sidebar.selectbox(label="Navigation", options=["Case Intake", "Explore Data", "Draft SAR", "Review & Compare", "Compliance Checklist & Sign-off", "Export & Audit"])
 
 if page == "Case Intake":
-    from application_pages.page1_case_intake import run_page1
-    run_page1()
+    from application_pages.page_case_intake import run_page_case_intake
+    run_page_case_intake()
 elif page == "Explore Data":
-    from application_pages.page2_explore_data import run_page2
-    run_page2()
+    from application_pages.page_explore_data import run_page_explore_data
+    run_page_explore_data()
 elif page == "Draft SAR":
-    from application_pages.page3_draft_sar import run_page3
-    run_page3()
+    from application_pages.page_draft_sar import run_page_draft_sar
+    run_page_draft_sar()
 elif page == "Review & Compare":
-    from application_pages.page4_review_compare import run_page4
-    run_page4()
+    from application_pages.page_review_compare import run_page_review_compare
+    run_page_review_compare()
 elif page == "Compliance Checklist & Sign-off":
-    from application_pages.page5_compliance_signoff import run_page5
-    run_page5()
+    from application_pages.page_compliance_checklist import run_page_compliance_checklist
+    run_page_compliance_checklist()
 elif page == "Export & Audit":
-    from application_pages.page6_export_audit import run_page6
-    run_page6()
-
-
-# License
-st.caption('''
----
-## QuantUniversity License
-
-© QuantUniversity 2025  
-This notebook was created for **educational purposes only** and is **not intended for commercial use**.  
-
-- You **may not copy, share, or redistribute** this notebook **without explicit permission** from QuantUniversity.  
-- You **may not delete or modify this license cell** without authorization.  
-- This notebook was generated using **QuCreate**, an AI-powered assistant.  
-- Content generated by AI may contain **hallucinated or incorrect information**. Please **verify before using**.  
-
-All rights reserved. For permissions or commercial licensing, contact: [info@qusandbox.com](mailto:info@qusandbox.com)
-''')
+    from application_pages.page_export_audit import run_page_export_audit
+    run_page_export_audit()
+# Your code ends
