@@ -1,9 +1,10 @@
 streamlit
 pandas
 numpy
-plotly
-networkx
 scikit-learn
 nltk
+plotly
+networkx
+requests
 tenacity
 python-dotenv
