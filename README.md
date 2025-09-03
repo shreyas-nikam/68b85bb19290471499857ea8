@@ -1,135 +1,116 @@
-# QuLab: AML SAR Drafting Assistant
+# QuLab: AI-Powered SAR Drafting Assistant
 
-## Project Title and Description
+## Project Description
 
-**QuLab: AML SAR Drafting Assistant** is a Streamlit application designed to streamline the drafting of Anti-Money Laundering (AML) Suspicious Activity Reports (SARs). This tool aims to enhance the efficiency and accuracy of AML analysts by providing AI-assisted features throughout the SAR generation process. The application guides analysts through a structured workflow, including case intake, data exploration, SAR draft generation (powered by a Large Language Model), review and comparison, compliance checks, and export/audit functionalities.
+QuLab is a Streamlit application designed to assist Anti-Money Laundering (AML) analysts in drafting Suspicious Activity Reports (SARs). This application leverages Artificial Intelligence (AI) to automate the generation of first-draft SAR narratives, summarize transaction timelines, and suggest potential typologies.  It is designed with a focus on *human-in-the-loop review*, ensuring auditability, and adherence to strict compliance guardrails. The primary goal is to streamline the initial SAR drafting process, *not* to replace human judgment.
 
 ## Features
 
-*   **Case Intake:** Upload and get a preliminary overview of case data. Displays key statistics and potential AML typologies.
-*   **Explore Data:** Interactively analyze transactions, customer relationships, and geographic patterns using advanced visualizations (timeline, geo map, counterparty network graph).
-*   **Draft SAR:** Generate an initial SAR narrative using an LLM, steered by extracted key facts.
-*   **Review & Compare:** Review, edit, and compare the AI-generated draft with the analyst's final version.
-*   **Compliance Checklist & Sign-off:** Validate the narrative against a compliance checklist and facilitate formal sign-off.
-*   **Export & Audit:** Export the final SAR package, including the narrative, facts, checklist report, and a detailed audit trail.
-*   **Synthetic Data Generation:** The application includes a synthetic data generation capability for demonstration and testing purposes.
-*   **Direct LLM Integration:** Uses direct LLM calls for SAR narrative generation, focusing on regulatory compliance (e.g., FinCEN guidelines) without relying on Retrieval-Augmented Generation (RAG).
-*   **Human-in-the-Loop Review:** Emphasizes the essential role of human expertise in reviewing and validating AI-generated narratives.
-*   **Auditability and Compliance Guardrails:** Provides features that ensure every step of the SAR drafting process is auditable, transparent, and aligned with compliance requirements.
+*   **Automated SAR Narrative Generation:** Uses Large Language Models (LLMs) to generate initial SAR narratives based on case data, without relying on Retrieval-Augmented Generation (RAG) initially.
+*   **Key Information Extraction (5Ws):** Extracts essential information ("Who, What, When, Where, Why") from case data to guide the LLM in producing accurate and compliant narratives.
+*   **Human-in-the-Loop Review:** Provides a workflow for analysts to review, edit, and perform compliance checks on AI-generated narratives.
+*   **Compliance Checklist and Audit Trail:** Implements a compliance checklist and tracks all actions taken during the SAR drafting process for auditability.
+*   **Data Exploration Tools:** Offers tools to explore and visualize transaction data to identify potential suspicious activity.
+*   **Case Intake Module:** Allows users to input and manage case information efficiently.
+*   **Review and Comparison:** Enables users to compare the AI-generated draft with the original case data and manually adjusted narratives.
+*   **Export and Audit:** Provides functionality to export the final SAR narrative and associated audit trail.
 
 ## Getting Started
 
 ### Prerequisites
 
-*   **Python 3.8+:**  Ensure you have Python 3.8 or a later version installed.
-*   **Poetry:** Installation and management of virtual environments.
+Before running QuLab, ensure you have the following installed:
+
+*   **Python 3.7 or higher:**  Download Python from [python.org](https://www.python.org/).
+*   **Poetry (recommended):** For dependency management.  Install with: `pip install poetry`
+*   Alternatively: **pip:**  If you prefer using `pip` directly.
 
 ### Installation
 
 1.  **Clone the repository:**
-
     ```bash
-    git clone <repository_url>
-    cd QuLab-SAR-Assistant  # Or whatever the repo is named locally.
+    git clone <your_repository_url>
+    cd <your_repository_directory>
     ```
 
-2.  **Install Poetry:**
-
-    ```bash
-    pip install poetry
-    ```
-
-3.  **Create and activate a virtual environment using Poetry:**
-
+2.  **Install dependencies using Poetry (recommended):**
     ```bash
     poetry install
-    poetry shell
     ```
 
-4.  **Install Dependencies:**
-
+    or **Install dependencies using pip:**
     ```bash
-    pip install -r requirements.txt  # This is important if poetry install fails, it should not, but it's here as a fallback.
+    pip install -r requirements.txt
     ```
-
-5.  **Environment Variables (Optional - Local Development):**
-
-    *   Create a `.env` file in the root directory of the project.
-    *   Add any required environment variables to the `.env` file.  (e.g., API Keys if needed to connect to LLMs.)
-
-    ```
-    # .env example (if an API key is needed)
-    OPENAI_API_KEY=YOUR_OPENAI_API_KEY
-    ```
-
-    **Important:** For production deployments, it's highly recommended to manage secrets securely using a dedicated secrets manager service (e.g., Kubernetes secrets, AWS Secrets Manager) instead of a `.env` file.
+    *Note:  A requirements.txt file will need to be manually created containing the list of necessary libraries for the application.  These are libraries such as: streamlit, pandas, etc.*
 
 ## Usage
 
-1.  **Run the Streamlit application:**
+1.  **Activate the Poetry environment (if using Poetry):**
+    ```bash
+    poetry shell
+    ```
 
+2.  **Run the Streamlit application:**
     ```bash
     streamlit run app.py
     ```
 
-2.  **Access the application:**
+3.  **Access the application:** Open your web browser and go to the URL displayed in the terminal (usually `http://localhost:8501`).
 
-    Open your web browser and navigate to the URL displayed in the terminal (usually `http://localhost:8501`).
+**Basic Usage:**
 
-3.  **Navigate the Application:**
-
-    Use the sidebar navigation to access different pages:
-
-    *   **Case Intake:** Load and view case data.
-    *   **Explore Data:** Interact with data visualizations.
-    *   **Draft SAR:** Generate an initial SAR draft.
-    *   **Review & Compare:** Review and edit the SAR draft.
-    *   **Compliance Checklist & Sign-off:** Perform compliance checks and sign-off.
-    *   **Export & Audit:** Export the SAR package.
+*   **Navigation:** Use the sidebar on the left to navigate between different sections of the application: "Case Intake", "Explore Data", "Draft SAR", "Review & Compare", "Compliance Checklist & Sign-off", and "Export & Audit".
+*   **Case Intake:** Enter or upload case data. This data will be used by the AI to generate SAR narratives.
+*   **Explore Data:** Use the data exploration tools to visualize and analyze transaction data.
+*   **Draft SAR:** Generate an initial SAR narrative using the LLM.  Review and edit the generated text.
+*   **Review & Compare:** Compare the AI-generated draft with the original case data and manually edited versions.
+*   **Compliance Checklist & Sign-off:** Complete the compliance checklist to ensure the SAR meets regulatory requirements.  Sign off on the SAR.
+*   **Export & Audit:** Export the final SAR narrative and audit trail for submission.
 
 ## Project Structure
 
 ```
-QuLab-SAR-Assistant/
-├── app.py                    # Main Streamlit application script
-├── application_pages/        # Directory containing individual page scripts
-│   ├── page1_case_intake.py
-│   ├── page2_explore_data.py
-│   ├── page3_draft_sar.py
-│   ├── page4_review_compare.py
-│   ├── page5_compliance_signoff.py
-│   └── page6_export_audit.py
-├── .env                     # (Optional) Environment variables (for local development only)
+QuLab/
+├── app.py                    # Main Streamlit application file
+├── application_pages/        # Directory containing code for each page of the application
+│   ├── page_case_intake.py    # Case Intake page
+│   ├── page_explore_data.py   # Explore Data page
+│   ├── page_draft_sar.py      # Draft SAR page
+│   ├── page_review_compare.py # Review & Compare page
+│   ├── page_compliance_checklist.py # Compliance Checklist page
+│   └── page_export_audit.py    # Export & Audit page
+├── static/                   # Directory for static assets (e.g., images, data files)
+│   └── ...
 ├── README.md                 # This file
-├── requirements.txt          # List of Python dependencies
-└── poetry.lock             # Poetry lock file
-└── pyproject.toml          # Poetry configuration
+└── requirements.txt           # List of Python dependencies (if using pip)
 ```
 
 ## Technology Stack
 
-*   **Streamlit:**  For building the interactive web application.
-*   **Pandas:**  For data manipulation and analysis.
-*   **Numpy:**  For numerical operations.
-*   **Plotly:**  For creating interactive visualizations.
-*   **NetworkX:** For creating and manipulating network graphs.
-*   **python-dotenv:** For loading environment variables from a `.env` file (optional, for local development).
+*   **Python:** Programming language
+*   **Streamlit:** Web framework for building interactive data applications
+*   **Pandas:** Data analysis and manipulation library
+*   **Large Language Model (LLM):** For generating SAR narratives (specific LLM not specified in code, but would need to be integrated.  Examples: OpenAI's GPT, Google's Gemini, or other models.)
+*   **Other libraries:** (Likely includes libraries for data visualization, API interaction with the LLM, and compliance checking)
 
 ## Contributing
 
-Contributions are welcome! Please follow these guidelines:
+We welcome contributions to QuLab! Please follow these guidelines:
 
-1.  Fork the repository.
-2.  Create a new branch for your feature or bug fix.
-3.  Make your changes and commit them with clear, descriptive messages.
-4.  Submit a pull request to the main branch.
+1.  **Fork the repository.**
+2.  **Create a new branch** for your feature or bug fix.
+3.  **Make your changes** and write tests to ensure they work correctly.
+4.  **Submit a pull request** with a clear description of your changes.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE) - see the `LICENSE` file for details. *(Note: You'll need to create a LICENSE file if you plan to use the MIT License or another open-source license).*
 
 ## Contact
 
-For questions or feedback, please contact:
+If you have any questions or suggestions, please contact:
 
-*   [QuantUniversity](https://www.quantuniversity.com/)
+*   [Your Name/Organization Name]
+*   [Your Email Address]
+*   [Link to your GitHub repository] (optional)
