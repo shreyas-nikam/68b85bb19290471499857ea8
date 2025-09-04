@@ -1,7 +1,15 @@
 import streamlit as st
 import json
 import pandas as pd
+import os
 from datetime import datetime, timedelta
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, PageTemplate, Frame
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.lib import colors
+from reportlab.platypus.doctemplate import BaseDocTemplate
+from io import BytesIO
 
 
 def export_sar_data(narrative, facts, checklist_report, audit_trail):
@@ -24,6 +32,250 @@ def export_sar_data(narrative, facts, checklist_report, audit_trail):
         "audit_trail": audit_trail
     }
     return sar_data
+
+
+def generate_pdf_from_json(json_data, title="SAR for the AML Case Study"):
+    """Converts JSON data to a formatted PDF document."""
+    buffer = BytesIO()
+    
+    # Create custom document with footer
+    class FooterDocTemplate(BaseDocTemplate):
+        def __init__(self, filename, **kwargs):
+            BaseDocTemplate.__init__(self, filename, **kwargs)
+            
+        def afterPage(self):
+            """Add footer to each page"""
+            self.canv.saveState()
+            
+            # Get current year
+            current_year = datetime.now().year
+            
+            # Footer content
+            footer_left = f"©QuantUniversity, {current_year}"
+            footer_center = "Contact info@qusandbox.com for more details"
+            footer_right = f"Page {self.canv.getPageNumber()}"
+            
+            # Footer positioning
+            footer_y = 0.2 * inch
+            page_width = letter[0]
+            
+            # Set font for footer
+            self.canv.setFont("Helvetica", 9)
+            
+            # Draw footer elements
+            self.canv.drawString(72, footer_y, footer_left)  # Left margin
+            
+            # Center text
+            center_width = self.canv.stringWidth(footer_center, "Helvetica", 9)
+            center_x = (page_width - center_width) / 2
+            self.canv.drawString(center_x, footer_y, footer_center)
+            
+            # Right-aligned text
+            right_width = self.canv.stringWidth(footer_right, "Helvetica", 9)
+            right_x = page_width - 72 - right_width  # Right margin
+            self.canv.drawString(right_x, footer_y, footer_right)
+            
+            self.canv.restoreState()
+    
+    # Create document with custom template
+    doc = FooterDocTemplate(buffer, pagesize=letter,
+                           rightMargin=72, leftMargin=72,
+                           topMargin=72, bottomMargin=36)
+    
+    # Create frame for content (leaving space for footer)
+    frame = Frame(72, 50, letter[0]-144, letter[1]-122, 
+                  leftPadding=0, bottomPadding=0, 
+                  rightPadding=0, topPadding=0)
+    
+    # Create page template with frame
+    template = PageTemplate(id='normal', frames=[frame])
+    doc.addPageTemplates([template])
+    
+    # Container for the 'Flowable' objects
+    elements = []
+    
+    # Define styles
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        spaceAfter=30,
+        alignment=1,  # Center alignment
+        textColor=colors.HexColor('#026caa')
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=16,
+        spaceAfter=12,
+        spaceBefore=20,
+        textColor=colors.HexColor('#026caa')
+    )
+    
+    subheading_style = ParagraphStyle(
+        'CustomSubHeading',
+        parent=styles['Heading3'],
+        fontSize=12,
+        spaceAfter=8,
+        spaceBefore=12,
+        textColor=colors.HexColor('#026caa')
+    )
+    
+    # Add logo and header section
+    logo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logo', 'image.png')
+    
+    if os.path.exists(logo_path):
+        # Add centered logo at the top
+        logo_img = Image(logo_path, width=2.1 * inch, height=1.2*inch)
+        logo_img.hAlign = 'CENTER'
+        elements.append(logo_img)
+        elements.append(Spacer(1, 15))
+        
+        # Add centered title below logo
+        title_para = Paragraph(title, title_style)
+        elements.append(title_para)
+    else:
+        # Fallback if logo not found
+        title_para = Paragraph(title, title_style)
+        elements.append(title_para)
+    
+    elements.append(Spacer(1, 10))
+    
+    
+    # Process each section of the JSON data
+    for key, value in json_data.items():
+        # Add section header
+        section_header = Paragraph(key.replace('_', ' ').title(), heading_style)
+        elements.append(section_header)
+        
+        if key == 'narrative':
+            # Handle narrative specially
+            content_para = Paragraph(value, styles['Normal'])
+            elements.append(content_para)
+            
+        elif key == 'facts':
+            # Handle facts with better formatting
+            for i, fact in enumerate(value, 1):
+                if isinstance(fact, dict):
+                    fact_header = Paragraph(f"<b>Fact {i}: {fact.get('type', 'Unknown')}</b>", subheading_style)
+                    elements.append(fact_header)
+                    
+                    # Format each field in the fact
+                    for fact_key, fact_value in fact.items():
+                        if fact_key != 'type':  # Skip type as it's already in header
+                            formatted_key = fact_key.replace('_', ' ').title()
+                            formatted_value = str(fact_value)
+                            # Format timestamps nicely
+                            if 'timestamp' in fact_key.lower() and hasattr(fact_value, 'strftime'):
+                                formatted_value = fact_value.strftime("%Y-%m-%d %H:%M:%S")
+                            # Format large numbers
+                            elif isinstance(fact_value, (int, float)) and fact_value > 1000:
+                                if 'amount' in fact_key.lower():
+                                    formatted_value = f"${fact_value:,.2f}"
+                                else:
+                                    formatted_value = f"{fact_value:,.4f}"
+                            
+                            fact_para = Paragraph(f"• <b>{formatted_key}:</b> {formatted_value}", styles['Normal'])
+                            elements.append(fact_para)
+                else:
+                    # Handle simple string facts
+                    fact_para = Paragraph(f"• {str(fact)}", styles['Normal'])
+                    elements.append(fact_para)
+                
+                elements.append(Spacer(1, 8))
+                    
+        elif key == 'checklist_report':
+            # Handle checklist report with better formatting
+            if isinstance(value, dict):
+                # Overall status first
+                overall_status = "PASS" if value.get('overall', False) else "FAIL"
+                status_color = colors.green if value.get('overall', False) else colors.red
+                overall_para = Paragraph(f"<b>Overall Status:</b> <font color='{status_color}'>{overall_status}</font>", styles['Normal'])
+                elements.append(overall_para)
+                elements.append(Spacer(1, 8))
+                
+                # Other summary fields
+                for report_key, report_value in value.items():
+                    if report_key not in ['overall', 'items']:  # Handle items separately
+                        formatted_key = report_key.replace('_', ' ').title()
+                        if isinstance(report_value, dict):
+                            # Handle nested dictionaries
+                            sub_para = Paragraph(f"<b>{formatted_key}:</b>", styles['Normal'])
+                            elements.append(sub_para)
+                            for sub_key, sub_value in report_value.items():
+                                sub_formatted = f"  • {sub_key.replace('_', ' ').title()}: {sub_value}"
+                                sub_detail_para = Paragraph(sub_formatted, styles['Normal'])
+                                elements.append(sub_detail_para)
+                        else:
+                            report_para = Paragraph(f"<b>{formatted_key}:</b> {str(report_value)}", styles['Normal'])
+                            elements.append(report_para)
+                
+                # Handle checklist items
+                if 'items' in value and isinstance(value['items'], list):
+                    elements.append(Spacer(1, 10))
+                    items_header = Paragraph("<b>Checklist Items:</b>", subheading_style)
+                    elements.append(items_header)
+                    
+                    for item in value['items']:
+                        if isinstance(item, dict):
+                            status = "✓ PASS" if item.get('passed', False) else "✗ FAIL"
+                            status_color = colors.green if item.get('passed', False) else colors.red
+                            label = item.get('label', 'Unknown item')
+                            
+                            item_para = Paragraph(f"<font color='{status_color}'>{status}</font> - {label}", styles['Normal'])
+                            elements.append(item_para)
+                            
+                            # Add remediation if present and failed
+                            if not item.get('passed', False) and item.get('remediation'):
+                                remediation_para = Paragraph(f"  <i>Remediation: {item['remediation']}</i>", styles['Normal'])
+                                elements.append(remediation_para)
+                            
+                            elements.append(Spacer(1, 4))
+                
+        elif key == 'audit_trail':
+            # Handle audit trail as a table
+            if value and isinstance(value[0], dict):
+                # Create table for audit trail
+                headers = ['Timestamp', 'Event', 'Details']
+                table_data = [headers]
+                
+                for item in value:
+                    timestamp = item.get('timestamp', '')
+                    event = item.get('event', '')
+                    
+                    # Combine other fields as details
+                    details = []
+                    for detail_key, detail_value in item.items():
+                        if detail_key not in ['timestamp', 'event']:
+                            details.append(f"{detail_key}: {detail_value}")
+                    details_str = ", ".join(details) if details else ""
+                    
+                    row = [timestamp, event, details_str]
+                    table_data.append(row)
+                
+                table = Table(table_data, colWidths=[2*inch, 2.5*inch, 2*inch])
+                table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#026caa')),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 10),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                    ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                    ('FONTSIZE', (0, 1), (-1, -1), 9),
+                ]))
+                elements.append(table)
+        
+        elements.append(Spacer(1, 15))
+    
+    # Build PDF
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer.getvalue()
 
 def run_page():
     # --- Resolve session dependencies with graceful fallbacks ---
@@ -108,12 +360,22 @@ The export bundle serves multiple critical purposes:
         json_bytes = json.dumps(bundle, indent=2, default=str).encode("utf-8")
         csv_bytes = pd.DataFrame(audit_trail).to_csv(index=False).encode("utf-8")
         txt_bytes = human_edited_narrative.encode("utf-8")
+        
+        # Generate PDF from JSON data
+        try:
+            pdf_bytes = generate_pdf_from_json(bundle)
+            st.session_state.pdf_generation_success = True
+        except Exception as e:
+            st.error(f"Error generating PDF: {str(e)}")
+            pdf_bytes = b""
+            st.session_state.pdf_generation_success = False
 
         st.session_state.export_files = {
             "stamp": stamp,
             "json_bytes": json_bytes,
             "csv_bytes": csv_bytes,
             "txt_bytes": txt_bytes,
+            "pdf_bytes": pdf_bytes,
         }
         if 'export_ready' not in st.session_state:
             st.session_state.export_ready = True
@@ -138,17 +400,6 @@ The export bundle serves multiple critical purposes:
             key=f"dl_txt_{stamp}",
         )
 
-        st.markdown("### Full SAR Export")
-        
-        st.download_button(
-            label="⬇️ Download Full SAR Export (JSON)",
-            data=st.session_state.export_files["json_bytes"],
-            file_name=f"SAR_export_{stamp}.json",
-            mime="application/json",
-            use_container_width=True,
-            key=f"dl_json_{stamp}",
-        )
-        
         st.markdown("### Audit Trail")
         st.dataframe(pd.DataFrame(st.session_state.audit_trail))
         st.download_button(
@@ -159,6 +410,42 @@ The export bundle serves multiple critical purposes:
             use_container_width=True,
             key=f"dl_csv_{stamp}",
         )
+
+        st.markdown("### Full SAR Export")
+
+        # Display PDF preview (only show if PDF generation was successful)
+        if st.session_state.get("pdf_generation_success", False):
+            st.markdown("### Report Preview")
+            
+            # Use base64 encoding to display PDF
+            import base64
+            base64_pdf = base64.b64encode(st.session_state.export_files["pdf_bytes"]).decode('utf-8')
+            pdf_display = f'''
+            <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
+                <iframe src="data:application/pdf;base64,{base64_pdf}" 
+                        width="70%" 
+                        height="800" 
+                        type="application/pdf"
+                        style="border: 1px solid #ccc; border-radius: 5px; margin-bottom: 30px;">
+                </iframe>
+            </div>
+            '''
+            st.markdown(pdf_display, unsafe_allow_html=True)
+
+        
+        
+        st.download_button(
+            label="⬇️ Download Full SAR Export (JSON)",
+            data=st.session_state.export_files["json_bytes"],
+            file_name=f"SAR_export_{stamp}.json",
+            mime="application/json",
+            use_container_width=True,
+            key=f"dl_json_{stamp}",
+        )
+        
+        # Show warning if PDF generation failed
+        if not st.session_state.get("pdf_generation_success", False):
+            st.warning("PDF generation failed. Please try preparing the export bundle again.")
         
     else:
         st.info("Click **Prepare Export Bundle** to generate the downloadable files.")
