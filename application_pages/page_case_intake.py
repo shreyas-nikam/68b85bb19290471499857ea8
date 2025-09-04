@@ -229,7 +229,6 @@ After generating the synthetic datasets, it's good practice to quickly inspect t
 *   `customers`: Represents individual customer entities.
 *   `transactions`: Details of financial transactions, including amounts and timestamps.
 *   `alerts`: Records of system-generated alerts for suspicious activities.
-*   `notes`: Manual notes added by analysts during case investigation.
 
 Confirming these shapes validates the initial data loading step and sets the stage for further exploration and processing.''')
 
