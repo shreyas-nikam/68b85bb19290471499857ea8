@@ -5,6 +5,78 @@ import pandas as pd
 import re, html
 import pandas as pd
 import streamlit as st
+import os
+from dotenv import load_dotenv
+from tenacity import retry, stop_after_attempt, wait_exponential
+import requests
+
+# Load environment variables
+load_dotenv()
+LLM_API_URL = os.getenv("LLM_API_URL", "https://api.openai.com/v1/chat/completions")
+LLM_API_KEY = os.getenv("LLM_API_KEY", os.environ.get("OPENAI_API_KEY"))
+
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=8))
+def call_llm(prompt: str) -> str:
+    if not LLM_API_KEY or LLM_API_KEY == "":
+        print("Warning: LLM_API_URL or LLM_API_KEY not set. Using a dummy response.")
+        return "AI-assisted fixed draft:\nThis is a placeholder fixed narrative. In a real scenario, the LLM would generate a corrected version based on the compliance failures."
+    
+    headers = {"Authorization": f"Bearer {LLM_API_KEY}", "Content-Type": "application/json"}
+    payload = {
+        "model": "gpt-4o",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.2,
+        "max_tokens": 1000
+    }
+    r = requests.post(LLM_API_URL, headers=headers, json=payload, timeout=60)
+    r.raise_for_status()
+    data = r.json()
+    return data["choices"][0]["message"]["content"].strip()
+
+def build_fix_prompt(narrative: str, compliance_report: dict) -> str:
+    """
+    Builds a detailed prompt for the LLM to fix the SAR narrative based on compliance failures.
+    """
+    # Format compliance results with specific failures
+    results_str = f"Overall Status: {'PASS' if compliance_report['overall'] else 'FAIL'}\n\n"
+    results_str += "Detailed Checklist Items and Failures:\n"
+    
+    failed_items = []
+    for item in compliance_report['items']:
+        status = 'PASS' if item['passed'] else 'FAIL'
+        results_str += f"- {item['label']}: {status}\n"
+        if not item['passed']:
+            results_str += f"  Remediation Required: {item['remediation']}\n"
+            failed_items.append(item['label'])
+    
+    failed_list = ", ".join(failed_items) if failed_items else "None"
+    
+    prompt = f"""
+You are an expert AML analyst assistant specializing in Suspicious Activity Report (SAR) drafting and compliance with FinCEN guidelines.
+
+Your task is to fix a SAR narrative that has failed compliance checks. You must address ALL failed checklist items while maintaining factual accuracy, chronological order, and regulatory compliance.
+
+CURRENT SAR NARRATIVE:
+{narrative}
+
+COMPLIANCE CHECKLIST RESULTS:
+{results_str}
+
+FAILED ITEMS TO ADDRESS: {failed_list}
+
+INSTRUCTIONS:
+1. Review each failed checklist item and implement the suggested remediation.
+2. Ensure the narrative includes all 5Ws (Who, What, When, Where, Why) clearly and completely.
+3. Maintain chronological order of events.
+4. Remove any speculative language (e.g., "may have", "could be", "likely").
+5. Keep the narrative concise but comprehensive, within 100-1000 characters.
+6. Use specific amounts, dates, and details from the original narrative.
+7. Label amounts with backticks, e.g., `$500.00`.
+8. Structure the narrative logically with clear paragraphs.
+
+PROVIDE ONLY the fixed SAR narrative below, starting with "AI-assisted fixed draft:" and ending with the complete corrected narrative. Do not include any additional commentary or explanations.
+"""
+    return prompt
 
 # ---- Tunables ----
 SPECULATIVE_PHRASES = [
@@ -197,7 +269,23 @@ def render_compliance_checklist_ui(narrative: str, extracted_5ws: dict):
 
 def run_page():
     st.markdown("# Compliance Checklist")
-    
+    # If a fixed narrative was saved in the previous run, apply it BEFORE rendering widgets
+    if st.session_state.get('apply_fixed_narrative'):
+        fixed_text = st.session_state.get('fixed_narrative')
+        if fixed_text:
+            # Update both canonical narrative keys for downstream pages
+            st.session_state.human_edited_narrative = fixed_text
+            st.session_state.analyst_edited_narrative = fixed_text
+            # Invalidate any previously prepared export so it can't show stale content
+            try:
+                st.session_state.pop('export_ready', None)
+                st.session_state.pop('export_files', None)
+                st.session_state.pop('pdf_generation_success', None)
+            except Exception:
+                pass
+        # Clear the flag to avoid reapplying repeatedly
+        st.session_state.apply_fixed_narrative = False
+
     if 'data' not in st.session_state:
         st.error("Please load synthetic data first. Go to the **Case Intake** page.")
         return
@@ -251,9 +339,14 @@ This automated checklist speeds up the review process and provides objective fee
 """)
     
     
-    # show the narrative and let the user edit it
+    # show the narrative and let the user edit it (bind to session state)
     st.markdown("### SAR Narrative")
-    edited_narrative = st.text_area("Edit the narrative to make it compliant with the checklist", value=human_edited_narrative, height=400)
+    edited_narrative = st.text_area(
+        "Edit the narrative to make it compliant with the checklist",
+        value=st.session_state.human_edited_narrative,
+        height=400,
+        key="human_edited_narrative",
+    )
     
     
     if st.button("Run Compliance Checklist"):
@@ -266,4 +359,69 @@ Now head to the `Export & Audit` page to export the SAR.
                     """,
                     unsafe_allow_html=True
                 )
+
+    # Auto-run the compliance checklist after saving a fixed narrative
+    if st.session_state.get('auto_run_checklist'):
+        compliance_report = render_compliance_checklist_ui(edited_narrative, five_ws)
+        st.session_state.compliance_checklist_results = compliance_report
+        st.markdown("")
+        st.markdown("The compliance checklist report provides a clear pass/fail status for each critical criterion. This immediate feedback helps analysts understand where the narrative stands in terms of regulatory readiness.")
+        st.markdown("""
+Now head to the `Export & Audit` page to export the SAR.                
+                    """,
+                    unsafe_allow_html=True
+                )
+        # reset flag so it only happens once
+        st.session_state.auto_run_checklist = False
+    
+    # Add "Fix it with AI" button if checklist has been run and failed
+    if ('compliance_checklist_results' in st.session_state and 
+        isinstance(st.session_state.compliance_checklist_results, dict) and 
+        not st.session_state.compliance_checklist_results.get('overall', True)):
+        
+        st.markdown("---")
+        st.markdown("### 🚨 Compliance Issues Detected")
+        st.markdown("The SAR narrative failed one or more compliance checks. Use AI assistance to automatically fix the issues:")
+        
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            if st.button("🔧 Fix it with AI", type="primary", use_container_width=True):
+                # Use the current edited narrative bound to session state
+                current_narrative = st.session_state.get('human_edited_narrative', '')
+                compliance_report = st.session_state.compliance_checklist_results
+                
+                # Build the prompt for fixing
+                fix_prompt = build_fix_prompt(current_narrative, compliance_report)
+                
+                # Call the LLM to get the fixed narrative
+                with st.spinner("🤖 AI is analyzing and fixing the narrative..."):
+                    st.session_state.fixed_narrative = call_llm(fix_prompt)
+
+        # Persistently render the AI-fixed section if available so Save works after rerun
+        if st.session_state.get('fixed_narrative'):
+            st.markdown("### ✅ AI-Fixed Narrative")
+            st.markdown("*Review the improved narrative below:*")
+            # Allow small tweaks before saving
+            updated_fixed = st.text_area(
+                "Fixed SAR Narrative:",
+                value=st.session_state.fixed_narrative,
+                height=300,
+                key="fixed_narrative_display",
+            )
+            # Keep session in sync in case user edits the fixed text
+            st.session_state.fixed_narrative = updated_fixed
+
+            if st.button("Save Fixed SAR Narrative", type="primary", use_container_width=True):
+                # Defer applying to avoid modifying session_state for an existing widget key in the same run
+                st.session_state.apply_fixed_narrative = True
+                # Request auto-run of checklist after save applies
+                st.session_state.auto_run_checklist = True
+                st.success("Saved. Updating the SAR Narrative above...")
+                try:
+                    import streamlit as _st
+                    _st.rerun()
+                except Exception:
+                    pass
+        
+        st.markdown("---")
         

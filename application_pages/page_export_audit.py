@@ -343,10 +343,11 @@ def run_page():
         st.error("Please generate an AI draft narrative first. Go to the **Draft SAR** page.")
         return
 
-    # Support either key name
+    # Resolve final narrative from session (prefer latest saved)
     human_edited_narrative = (
-        st.session_state.get("human_edited_narrative")
+        st.session_state.get("fixed_narrative")
         or st.session_state.get("analyst_edited_narrative")
+        or st.session_state.get("ai_draft_narrative")
     )
     if human_edited_narrative is None:
         st.error("Please edit the narrative first. Go to the **Review & Compare** page.")
