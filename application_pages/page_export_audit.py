@@ -34,7 +34,7 @@ def export_sar_data(narrative, facts, checklist_report, audit_trail):
     return sar_data
 
 
-def generate_pdf_from_json(json_data, title="SAR for the AML Case Study"):
+def generate_pdf_from_json(json_data, title="AML SAR Report"):
     """Converts JSON data to a formatted PDF document."""
     buffer = BytesIO()
     
@@ -43,12 +43,43 @@ def generate_pdf_from_json(json_data, title="SAR for the AML Case Study"):
         def __init__(self, filename, **kwargs):
             BaseDocTemplate.__init__(self, filename, **kwargs)
             
+            
+        def beforePage(self):
+            """Header on each page."""
+            c = self.canv
+            c.saveState()
+            page_w, page_h = self.pagesize
+            header_y = page_h - 0.35 * inch
+            from uuid import uuid4
+            rid = str(uuid4())[:6]
+            ver = "1.0"
+            left = f"Report ID: {rid}"
+            center = title
+            right = f"Version: {ver}"
+            c.setFont("Helvetica", 9)
+            c.setTitle(f"AML SAR Report - {rid} (v{ver})")
+
+            # left
+            c.drawString(72, header_y, left)
+            # center
+            cw = c.stringWidth(center, "Helvetica", 9)
+            c.drawString((page_w - cw) / 2, header_y, center)
+            # right
+            rw = c.stringWidth(right, "Helvetica", 9)
+            c.drawString(page_w - 72 - rw, header_y, right)
+
+            # rule under header
+            c.setStrokeColor(colors.HexColor("#cccccc"))
+            c.line(72, header_y - 6, page_w - 72, header_y - 6)
+            c.restoreState()
+            
         def afterPage(self):
             """Add footer to each page"""
             self.canv.saveState()
             
             # Get current year
             current_year = datetime.now().year
+            
             
             # Footer content
             footer_left = f"©QuantUniversity, {current_year}"
@@ -58,6 +89,11 @@ def generate_pdf_from_json(json_data, title="SAR for the AML Case Study"):
             # Footer positioning
             footer_y = 0.2 * inch
             page_width = letter[0]
+            
+            
+            # rule under footer
+            self.canv.setStrokeColor(colors.HexColor("#cccccc"))
+            self.canv.line(72, footer_y + 10, page_width - 72, footer_y + 10)
             
             # Set font for footer
             self.canv.setFont("Helvetica", 9)
@@ -123,8 +159,11 @@ def generate_pdf_from_json(json_data, title="SAR for the AML Case Study"):
         textColor=colors.HexColor('#026caa')
     )
     
+   
+    
     # Add logo and header section
     logo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logo', 'image.png')
+    
     
     if os.path.exists(logo_path):
         # Add centered logo at the top
@@ -140,6 +179,10 @@ def generate_pdf_from_json(json_data, title="SAR for the AML Case Study"):
         # Fallback if logo not found
         title_para = Paragraph(title, title_style)
         elements.append(title_para)
+    
+    
+    
+    
     
     elements.append(Spacer(1, 10))
     
