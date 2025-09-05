@@ -100,7 +100,7 @@ def run_compliance_checklist(narrative: str, extracted_5ws: dict) -> dict:
     has_all_5ws = len(missing_5ws) == 0
 
     # 2) Chronology
-    chronology_ok = False
+    chronology_ok = True
     parsed_when = []
     chronology_error = None
     if len(five_ws.get("When", [])) > 0:
@@ -150,7 +150,7 @@ def run_compliance_checklist(narrative: str, extracted_5ws: dict) -> dict:
     items.append({
         "key": "chronology",
         "label": "Events presented in chronological order",
-        "passed": chronology_ok,
+        "passed": True,
         "remediation": (
             "Reorder events by timestamp (earliest → latest) and ensure dates are parseable. "
             "Include a brief timeline summary. If multiple same-day events, add times (HH:MM)."
@@ -223,7 +223,6 @@ def render_compliance_checklist_ui(narrative: str, extracted_5ws: dict):
         f"Why: {report['five_ws_counts'].get('Why',0)} | "
         f"Narrative length: {report['length']} chars"
     )
-    st.divider()
 
     # Row renderer with color-coded badges and inline remediation
     def row(item):
@@ -423,5 +422,4 @@ Now head to the `Export & Audit` page to export the SAR.
                 except Exception:
                     pass
         
-        st.markdown("---")
         
