@@ -1,0 +1,21 @@
+# keep secrets out of the build context
+.env
+.env.*
+
+# local private key (never commit)
+agekey.txt
+
+# VCS/CI junk not needed in image
+.git
+.github
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.envrc
+
+# OS/editor
+.DS_Store
+*.swp

@@ -161,6 +161,7 @@ While a more sophisticated implementation might use NLP to infer these from unst
     st.markdown("### Extracted 5Ws:")
     markdown_string = """
 ```
+
 """
     for key, value in five_ws.items():
         markdown_string += f"  {key}: {', '.join(map(str, value))}\n"

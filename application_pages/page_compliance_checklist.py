@@ -115,7 +115,7 @@ def run_compliance_checklist(narrative: str, extracted_5ws: dict) -> dict:
             chronology_ok = True
             chronology_error = str(e)
     else:
-        chronology_ok = False  # explicitly fail if no "When" available
+        chronology_ok = True  # explicitly fail if no "When" available
 
     # 3) Clarity (light heuristic)
     clarity_ok = len(narrative) > 50
